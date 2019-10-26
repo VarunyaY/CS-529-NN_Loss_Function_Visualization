@@ -1,6 +1,0 @@
-Schedule for the first checkpoint:
-
-• Analyze the existing data, pre-process and change the format so that it can be used easily for visualization.
-• Meet with the teammates to create prototypes (two) using FdS methodology.
-• Write atleast one scenario in the functional specifications document.
-• recognise challenges that could be faced.
