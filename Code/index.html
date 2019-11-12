@@ -1,34 +1,61 @@
 <!DOCTYPE html>
 
 <html>
+
 <head>
-    <meta charset=utf-8>
+  <meta charset=utf-8>
 
-    <title>CS 529 (VDS) Project</title>
+  <title> Visualization of Loss Landscapes in Neural Networks </title>
 
-    <!-- CSS Libraries -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-    
-    <!-- CSS Source -->
-    <link rel="stylesheet" href="./src/css/main.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
 
-    <!-- JS Libraries -->
-    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-    <script src="https://threejs.org/build/three.js"></script>
-    <script src="lib/js/OrbitControls.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.6/d3.min.js"></script>
+  <link rel="stylesheet" href="/src/css/main.css" />
 
-    <!-- JS Source -->
-    <script src="./src/js/main.js"></script>
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+  <script src="https://threejs.org/build/three.js"></script>
+  <script src="lib/js/OrbitControls.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.6/d3.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+
+  <script src='/src/js/index.js'></script>
 
 </head>
 
 <body>
-  <div>
-    <p id='intro'>
-      This is CS-529 (Viusal Data Science) Project
-    </p>
+  <div id='projectTitle'> Visualization of Loss Landscapes in Neural Networks </div>
+
+  <div id='buttonMenu'>
+    <div>
+      <div class='text'>LOSS</div>
+      <div class='text'>ACCURACY</div>
+    </div>
+
+    <div>
+      <div class='modelMenu'>
+        <button id='b_resnet_loss' class='modelButton'> Resnet </button>
+        <button id='b_resnet_ns_loss' class='modelButton'> Resnet No Short </button>
+        <button id='b_densenet_loss' class='modelButton'> Densenet </button>
+        <button id='b_vgg_loss' class='modelButton'> VGG </button>
+      </div>
+
+      <div class='modelMenu'>
+        <button id='b_resnet_acc' class='modelButton'> Resnet </button>
+        <button id='b_resnet_ns_acc' class='modelButton'> Resnet No Short </button>
+        <button id='b_densenet_acc' class='modelButton'> Densenet </button>
+        <button id='b_vgg_acc' class='modelButton'> VGG </button>
+      </div>
+    </div>
   </div>
+
+  <div id='scene'>
+  </div>
+
+  <div id='disclaimer'> The Visualization only focusses on four models, namely:
+    Resnet,Densenet, Renset no Short and VGG
+  </div>
+
 </body>
+
 </html>
