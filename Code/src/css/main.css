@@ -1,32 +1,48 @@
-body{
+body {
   width: 100%;
 }
 
-#intro{
+#intro {
   margin: 10px;
+}
+
+#buttonMenu {
+  display: flex;
+  margin-left: 30%;
+}
+
+.modelMenu {
+  display: flex;
+  margin-bottom: 3px;
+}
+
+#projectTitle {
+  font-size: 30px;
+  margin-left: 25%;
 }
 
 .modelButton {
   background-color: #4CAF50;
   border: 1px solid green;
-  color: white; 
+  color: white;
   padding: 10px 24px;
-  cursor: pointer; 
-  float: left; 
+  cursor: pointer;
+  float: left;
 }
 
-/* 
-.btn-group button:not(:last-child) {
-  border-right: none; 
-} */
+.text {
+  padding-top: 15px;
+  margin-right: 10px;
+}
 
-/* Clear floats (clearfix hack) */
-.modelMenu:after {
-  content: "";
-  clear: both;
-  display: table;
+#disclaimer {
+  margin-left: 25%;
 }
 
 .modelMenu button:hover {
-  background-color: #3e8e41;
+  background-color: #0c610f;
+}
+
+#wireframe {
+  margin-left: 50px;
 }
