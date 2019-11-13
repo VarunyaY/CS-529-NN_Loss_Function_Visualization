@@ -6,24 +6,33 @@ window.addEventListener('DOMContentLoaded', () => {
 
     var renderer = new THREE.WebGLRenderer();
     controls = new THREE.OrbitControls(camera, renderer.domElement);
-    camera.position.set(0, 0, 3);
     controls.update()
 
+    camera.position.set(0, 0, 5);
     renderer.setSize(600, 400);
-    document.body.appendChild(renderer.domElement);
+    document.getElementById('scene').appendChild(renderer.domElement);
 
-    var resnet_loss_data;
-    var densenet_loss_data;
-    var vgg_loss_data;
-    var resnet_ns_loss_data;
+    var axesHelper = new THREE.AxesHelper(1000);
+    axesHelper.translateY(-2);
+    axesHelper.rotation.x = -Math.PI / 2;
+    scene.add(axesHelper);
 
-    var resnet_acc_data;
-    var densenet_acc_data;
-    var vgg_acc_data;
-    var resnet_ns_acc_data;
+    var loss_mesh = {};
+    var acc_mesh = {};
 
-    var X_keys;
-    var Y_keys;
+    var loss_flag = {
+        'resnet': 0,
+        'densenet': 0,
+        'vgg': 0,
+        'resnet_no_short': 0
+    };
+
+    var acc_flag = {
+        'resnet': 0,
+        'densenet': 0,
+        'vgg': 0,
+        'resnet_no_short': 0
+    };
 
     var model_count = 4;
 
@@ -39,15 +48,94 @@ window.addEventListener('DOMContentLoaded', () => {
         'vgg_train_accuracy.json'
     ]
 
-    var resnet_loss_flag = 0;
-    var densenet_loss_flag = 0;
-    var resnet_ns_loss_flag = 0;
-    var vgg_loss_flag = 0;
+    function addEvent(id, model, type) {
+        d3.select(id)
+            .on('click', function () {
 
-    var resnet_acc_flag = 0;
-    var densenet_acc_flag = 0;
-    var resnet_ns_acc_flag = 0;
-    var vgg_acc_flag = 0;
+                if (type === 'loss') {
+                    if (loss_flag[model] === 0) {
+                        scene.add(loss_mesh[model])
+
+                        loss_flag[model] = 1;
+
+                        d3.select(id)
+                            .style('background-color', '#3174c0')
+                    } else {
+                        scene.remove(loss_mesh[model]);
+                        loss_flag[model] = 0;
+
+                        d3.select(id)
+                            .style('background-color', '#1b426e')
+                    }
+                } else {
+                    if (acc_flag[model] === 0) {
+                        scene.add(acc_mesh[model])
+
+                        acc_flag[model] = 1;
+
+                        d3.select(id)
+                            .style('background-color', '#3174c0')
+                    } else {
+                        scene.remove(acc_mesh[model]);
+                        acc_flag[model] = 0;
+
+                        d3.select(id)
+                            .style('background-color', '#1b426e')
+                    }
+                }
+            })
+    }
+
+    function loadData(filename) {
+        d3.json('assets/data/' + filename, function (data) {
+
+            //loss
+            if (filename === 'resnet_train_loss.json') {
+                loss_mesh['resnet'] = create_mesh(data, 'loss')
+                addEvent('#b_resnet_loss', 'resnet', 'loss');
+            }
+
+            if (filename === 'densenet_train_loss.json') {
+                loss_mesh['densenet'] = create_mesh(data, 'loss')
+                addEvent('#b_densenet_loss', 'densenet', 'loss');
+            }
+
+            if (filename === 'vgg_train_loss.json') {
+                loss_mesh['vgg'] = create_mesh(data, 'loss')
+                addEvent('#b_vgg_loss', 'vgg', 'loss');
+            }
+
+            if (filename === 'resnet_ns_train_loss.json') {
+                loss_mesh['resnet_no_short'] = create_mesh(data, 'loss')
+                addEvent('#b_resnet_ns_loss', 'resnet_no_short', 'loss');
+            }
+
+            //accuracy
+            if (filename === 'resnet_train_accuracy.json') {
+                acc_mesh['resnet'] = create_mesh(data, 'accuracy')
+                addEvent('#b_resnet_acc', 'resnet', 'accuracy');
+            }
+
+            if (filename === 'densenet_train_accuracy.json') {
+                acc_mesh['densenet'] = create_mesh(data, 'accuracy')
+                addEvent('#b_densenet_acc', 'densenet', 'accuracy');
+            }
+
+            if (filename === 'vgg_train_accuracy.json') {
+                acc_mesh['vgg'] = create_mesh(data, 'accuracy')
+                addEvent('#b_vgg_acc', 'vgg', 'accuracy');
+            }
+
+            if (filename === 'resnet_ns_train_accuracy.json') {
+                acc_mesh['resnet_no_short'] = create_mesh(data, 'accuracy')
+                addEvent('#b_resnet_ns_acc', 'resnet_no_short', 'accuracy');
+            }
+        })
+    }
+
+    for (i = 0; i < file_names.length; i++) {
+        loadData(file_names[i]);
+    }
 
     var x = [-1, -0.96, -0.92, -0.88, -0.84,
         -0.8, -0.76, -0.72, -0.68, -0.64,
@@ -60,64 +148,11 @@ window.addEventListener('DOMContentLoaded', () => {
         0.68, 0.72, 0.76, 0.8, 0.84, 0.88, 0.92, 0.96, 1
     ]
 
-    var y = [-1, -0.96, -0.92, -0.88, -0.84,
-        -0.8, -0.76, -0.72, -0.68, -0.64,
-        -0.6, -0.56, -0.52, -0.48, -0.44,
-        -0.4, -0.36, -0.32, -0.28, -0.24, -0.2,
-        -0.16, -0.12, -0.08, -0.04, 0, 0.04,
-        0.08, 0.12, 0.16, 0.2, 0.24,
-        0.28, 0.32, 0.36, 0.4, 0.44,
-        0.48, 0.52, 0.56, 0.6, 0.64,
-        0.68, 0.72, 0.76, 0.8, 0.84, 0.88, 0.92, 0.96, 1
-    ]
+    var y = x;
 
-    function loadData(filename) {
-        d3.json('assets/data/' + filename, function (data) {
-
-            //loss
-            if (filename === 'resnet_train_loss.json') {
-                resnet_loss_data = create_mesh(data)
-            }
-
-            if (filename === 'densenet_train_loss.json') {
-                densenet_loss_data = create_mesh(data)
-            }
-
-            if (filename === 'vgg_train_loss.json') {
-                vgg_loss_data = create_mesh(data)
-            }
-
-            if (filename === 'resnet_ns_train_loss.json') {
-                resnet_ns_loss_data = create_mesh(data)
-            }
-
-            //accuracy
-            if (filename === 'resnet_train_accuracy.json') {
-                resnet_acc_data = create_mesh(data)
-            }
-
-            if (filename === 'densenet_train_accuracy.json') {
-                densenet_acc_data = create_mesh(data)
-            }
-
-            if (filename === 'vgg_train_accuracy.json') {
-                vgg_acc_data = create_mesh(data)
-            }
-
-            if (filename === 'resnet_ns_train_accuracy.json') {
-                resnet_ns_acc_data = create_mesh(data)
-            }
-        })
-    }
-
-    for (i = 0; i < file_names.length; i++) {
-        loadData(file_names[i]);
-    }
-
-    function create_mesh(data) {
-        console.log(data)
-        X_keys = Object.keys(data)
-        Y_keys = Object.keys(data)
+    function create_mesh(data, type) {
+        var X_keys = Object.keys(data)
+        var Y_keys = Object.keys(data)
 
         var geometry = new THREE.Geometry();
 
@@ -158,14 +193,19 @@ window.addEventListener('DOMContentLoaded', () => {
         var zrange = zmax - zmin;
 
         var scalefac = 1
-        var scalefacz = 0.1
+        var scalefacz = 0.05
 
-        var color = d3.scaleLinear()
-            .domain([d3.min(values), (d3.min(values) + d3.max(values) / 2), d3.max(values)])
-            .range(['blue', 'skyblue', 'red'])
-
+        if (type === 'loss') {
+            var color = d3.scaleLinear()
+                .domain([d3.min(values), (d3.min(values) + d3.max(values) / 2), d3.max(values)])
+                .range(['blue', 'skyblue', 'red'])
+        } else {
+            var color = d3.scaleLinear()
+                .domain([d3.min(values), (d3.min(values) + d3.max(values) / 2), d3.max(values)])
+                .range(['red', 'skyblue', 'blue'])
+        }
         for (var k = 0; k < vertices_count; ++k) {
-            var newvert = new THREE.Vector3((xgrid[k] - xmid) * scalefac, (ygrid[k] - ymid) * scalefac, (values[k]) * scalefacz);
+            var newvert = new THREE.Vector3((xgrid[k] - xmid) * scalefac, (ygrid[k] - ymid) * scalefac, (values[k] - zmid) * scalefacz);
             geometry.vertices.push(newvert);
         }
 
@@ -209,129 +249,135 @@ window.addEventListener('DOMContentLoaded', () => {
         return mesh;
     }
 
-    //loss
-    d3.select('#b_resnet_loss')
-        .on('click', function () {
-            if (resnet_loss_flag === 0) {
-                scene.add(resnet_loss_data)
-                resnet_loss_flag = 1;
-                d3.select('#b_resnet_loss')
-                    .style('background-color', '#0c610f')
-            } else {
-                scene.remove(resnet_loss_data);
-                resnet_loss_flag = 0;
+    //loss legend
+    var color_scale_loss = d3.scaleLinear()
+        .domain([0, 50, 100])
+        .range(['blue', 'skyblue', 'red'])
 
-                d3.select('#b_resnet_loss')
-                    .style('background-color', '#4CAF50')
+    var defs = d3.select('#lossLegendSVG')
+        .append("defs");
+
+    var linearGradient = defs.append("linearGradient")
+        .attr('id', 'linear_gradient_L')
+
+    linearGradient
+        .attr("x1", "0%")
+        .attr("y1", "50%")
+        .attr("x2", "0%")
+        .attr("y2", "0%");
+
+    linearGradient.selectAll("stop")
+        .data(color_scale_loss.range())
+        .enter()
+        .append("stop")
+        .attr("offset", function (d, i) {
+            return i / (color_scale_loss.range().length);
+        })
+        .attr("stop-color", function (d) {
+            return d;
+        });
+
+    d3.select('#lossLegendSVG')
+        .append("rect")
+        .attr('id', 'lossLegendBar')
+
+
+    //accuracy Legend   
+    var color_scale_acc = d3.scaleLinear()
+        .domain([0, 50, 100])
+        .range(['red', 'skyblue', 'blue'])
+
+    var defs = d3.select('#accLegendSVG')
+        .append("defs");
+
+    linearGradient = defs.append("linearGradient")
+        .attr('id', 'linear_gradient_A')
+
+    linearGradient
+        .attr("x1", "0%")
+        .attr("y1", "50%")
+        .attr("x2", "0%")
+        .attr("y2", "0%");
+
+    linearGradient.selectAll("stop")
+        .data(color_scale_acc.range())
+        .enter()
+        .append("stop")
+        .attr("offset", function (d, i) {
+            return i / (color_scale_acc.range().length);
+        })
+        .attr("stop-color", function (d) {
+            return d;
+        });
+
+    d3.select('#accLegendSVG')
+        .append("rect")
+        .attr('id', 'accLegendBar')
+
+    //wireframe
+    var wireframe_flag = 0;
+
+    d3.select('#b_wireframe')
+        .on('change', function () {
+            if (wireframe_flag === 0) {
+                for (model in loss_mesh) {
+                    if (loss_flag[model] == 1) {
+                        scene.remove(loss_mesh[model]);
+                        loss_mesh[model].material.wireframe = true;
+                        scene.add(loss_mesh[model])
+                    }
+                    loss_mesh[model].material.wireframe = true;
+                }
+
+                for (model in acc_mesh) {
+                    if (acc_flag[model] === 1) {
+                        scene.remove(acc_mesh[model]);
+                        acc_mesh[model].material.wireframe = true;
+                        scene.add(acc_mesh[model])
+                    }
+                    acc_mesh[model].material.wireframe = true;
+                }
+
+                wireframe_flag = 1;
+            } else {
+                for (model in loss_mesh) {
+                    if (loss_flag[model] == 1) {
+                        scene.remove(loss_mesh[model]);
+                        loss_mesh[model].material.wireframe = false;
+                        scene.add(loss_mesh[model])
+                    }
+                    loss_mesh[model].material.wireframe = false;
+                }
+
+                for (model in acc_mesh) {
+                    if (acc_flag[model] === 1) {
+                        scene.remove(acc_mesh[model]);
+                        acc_mesh[model].material.wireframe = false;
+                        scene.add(acc_mesh[model])
+                    }
+                    acc_mesh[model].material.wireframe = false;
+                }
+
+                wireframe_flag = 0;
             }
         })
 
-    d3.select('#b_densenet_loss')
-        .on('click', function () {
-            if (densenet_loss_flag === 0) {
-                scene.add(densenet_loss_data)
-                densenet_loss_flag = 1;
-                d3.select('#b_densenet_loss')
-                    .style('background-color', '#0c610f')
-
+    var auto_rotate_flag = 0;
+    d3.select('#b_auto_rotate')
+        .on('change', function () {
+            if (auto_rotate_flag === 0) {
+                controls.autoRotate = true;
+                auto_rotate_flag = 1;
             } else {
-                scene.remove(densenet_loss_data);
-                densenet_loss_flag = 0;
-                d3.select('#b_densenet_loss')
-                    .style('background-color', '#4CAF50')
+                controls.autoRotate = false;
+                auto_rotate_flag = 0;
             }
+            controls.update();
         })
 
-    d3.select('#b_vgg_loss')
+    d3.select('#reset')
         .on('click', function () {
-            if (vgg_loss_flag === 0) {
-                scene.add(vgg_loss_data)
-                vgg_loss_flag = 1;
-                d3.select('#b_vgg_loss')
-                    .style('background-color', '#0c610f')
-            } else {
-                scene.remove(vgg_loss_data);
-                vgg_loss_flag = 0;
-                d3.select('#b_vgg_loss')
-                    .style('background-color', '#4CAF50')
-
-            }
-        })
-
-    d3.select('#b_resnet_ns_loss')
-        .on('click', function () {
-            if (resnet_ns_loss_flag === 0) {
-                scene.add(resnet_ns_loss_data)
-                resnet_ns_loss_flag = 1;
-                d3.select('#b_resnet_ns_loss')
-                    .style('background-color', '#0c610f')
-            } else {
-                scene.remove(resnet_ns_loss_data);
-                resnet_ns_loss_flag = 0;
-                d3.select('#b_resnet_ns_loss')
-                    .style('background-color', '#4CAF50')
-            }
-        })
-
-    //accuracy
-    d3.select('#b_resnet_acc')
-        .on('click', function () {
-            if (resnet_acc_flag === 0) {
-                scene.add(resnet_acc_data)
-                resnet_acc_flag = 1;
-                d3.select('#b_resnet_acc')
-                    .style('background-color', '#0c610f')
-            } else {
-                scene.remove(resnet_acc_data);
-                resnet_acc_flag = 0;
-                d3.select('#b_resnet_acc')
-                    .style('background-color', '#4CAF50')
-            }
-        })
-
-    d3.select('#b_densenet_acc')
-        .on('click', function () {
-            if (densenet_acc_flag === 0) {
-                scene.add(densenet_acc_data)
-                densenet_acc_flag = 1;
-                d3.select('#b_densenet_acc')
-                    .style('background-color', '#0c610f')
-            } else {
-                scene.remove(densenet_acc_data);
-                densenet_acc_flag = 0;
-                d3.select('#b_densenet_acc')
-                    .style('background-color', '#4CAF50')
-            }
-        })
-
-    d3.select('#b_vgg_acc')
-        .on('click', function () {
-            if (vgg_acc_flag === 0) {
-                scene.add(vgg_acc_data)
-                vgg_acc_flag = 1;
-                d3.select('#b_vgg_acc')
-                    .style('background-color', '#0c610f')
-            } else {
-                scene.remove(vgg_acc_data);
-                vgg_acc_flag = 0;
-                d3.select('#b_vgg_acc')
-                    .style('background-color', '#4CAF50')
-            }
-        })
-
-    d3.select('#b_resnet_ns_acc')
-        .on('click', function () {
-            if (resnet_ns_acc_flag === 0) {
-                scene.add(resnet_ns_acc_data)
-                resnet_ns_acc_flag = 1;
-                d3.select('#b_resnet_ns_acc')
-                    .style('background-color', '#0c610f')
-            } else {
-                scene.remove(resnet_ns_acc_data);
-                resnet_ns_acc_flag = 0;
-                d3.select('#b_resnet_ns_acc')
-                    .style('background-color', '#4CAF50')
-            }
+            camera.position.set(0, 0, 5);
         })
 
     function reload() {

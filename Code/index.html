@@ -11,12 +11,9 @@
 
   <link rel="stylesheet" href="/src/css/main.css" />
 
-  <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
   <script src="https://threejs.org/build/three.js"></script>
   <script src="lib/js/OrbitControls.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.6/d3.min.js"></script>
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
 
   <script src='/src/js/index.js'></script>
@@ -28,8 +25,8 @@
 
   <div id='buttonMenu'>
     <div>
-      <div class='text'>LOSS</div>
-      <div class='text'>ACCURACY</div>
+      <div class='text'> <b>LOSS</b></div>
+      <div class='text'><b>ACCURACY</b></div>
     </div>
 
     <div>
@@ -49,11 +46,48 @@
     </div>
   </div>
 
-  <div id='scene'>
+
+  <div id='options'>
+    <button id='reset' class='modelButton'> Reset Camera </button>
+
+    <label>WireFrame
+      <input type="checkbox" id='b_wireframe'>
+    </label>
+
+    <label> Auto Rotate
+      <input type="checkbox" id='b_auto_rotate'>
+
+    </label>
+
+  </div>
+
+
+
+  <div id='mainContainer'>
+    <div id='scene'>
+    </div>
+
+    <div class='legend'>
+      <svg id='lossLegendSVG'></svg>
+      <div>Loss</div>
+    </div>
+
+    <div class='legend'>
+      <svg id='accLegendSVG'></svg>
+      <div>Accuracy</div>
+    </div>
+
+    <div>
+      <!-- add cross section here  -->
+    </div>
   </div>
 
   <div id='disclaimer'> The Visualization only focusses on four models, namely:
-    Resnet,Densenet, Renset no Short and VGG
+    Resnet, Densenet, Renset no Short and VGG.
+    </br>
+    The Red, Green and Blue lines indicate the directions of positive X, Y and Z axes.
+    </br>
+    The values of loss and accuracies are scaled to 5% of their original value.
   </div>
 
 </body>
