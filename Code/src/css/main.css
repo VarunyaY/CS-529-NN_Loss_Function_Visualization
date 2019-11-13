@@ -22,12 +22,34 @@ body {
 }
 
 .modelButton {
-  background-color: #4CAF50;
-  border: 1px solid green;
+  background-color: rgb(27, 66, 110);
+  border: 1px solid #ffffff;
+  border-radius: 20px;
+  ;
   color: white;
   padding: 10px 24px;
   cursor: pointer;
   float: left;
+}
+
+.modelMenu button:hover {
+  background-color: rgb(49, 116, 192);
+}
+
+#options {
+  margin: 5px;
+}
+
+#reset {
+  background-color: #0d5243;
+  border: 1px solid #000;
+  color: white;
+  padding: 10px 24px;
+  cursor: pointer;
+}
+
+#reset:hover {
+  background-color: #1ba386;
 }
 
 .text {
@@ -35,14 +57,58 @@ body {
   margin-right: 10px;
 }
 
+
+#scene {
+  width: 50%;
+  height: 400px;
+}
+
 #disclaimer {
   margin-left: 25%;
 }
 
-.modelMenu button:hover {
-  background-color: #0c610f;
-}
-
 #wireframe {
   margin-left: 50px;
+}
+
+label {
+  margin-left: 10px;
+  margin-top: 8px;
+}
+
+#options {
+  height: 50px;
+}
+
+#mainContainer {
+  display: flex;
+  margin: 5px;
+}
+
+.legend {
+  width: 35px;
+}
+
+#lossLegendSVG {
+  margin-left: 10px;
+  height: 400px;
+}
+
+#lossLegendBar {
+  width: 15px;
+  height: 600px;
+  fill: url(#linear_gradient_L);
+  margin-left: 10px;
+}
+
+#accLegendSVG {
+  margin-left: 10px;
+  height: 400px;
+}
+
+#accLegendBar {
+  width: 15px;
+  height: 600px;
+  fill: url(#linear_gradient_A);
+  margin-left: 10px;
 }
