@@ -20,10 +20,10 @@ window.addEventListener('DOMContentLoaded', () => {
     var loss_mesh = {};
 
     var loss_flag = {
-        'resnet': 0,
         'densenet': 0,
+        'resnet_no_short': 0,
+        'resnet': 0,
         'vgg': 0,
-        'resnet_no_short': 0
     };
 
     var file_names = [
@@ -42,7 +42,6 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     })
 
-    
     yDirection = xDirection;
 
     function addEvent(id, model) {
@@ -119,21 +118,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
         var vertices_count = values.length;
 
-        var xmin = d3.min(X_keys);
-        var xmax = d3.max(X_keys);
-        var xmid = 0.5 * (xmin + xmax);
-
-        var ymin = d3.min(Y_keys);
-        var ymax = d3.max(Y_keys);
-        var ymid = 0.5 * (ymin + ymax);
-
         var zmin = d3.min(values);
         var zmax = d3.max(values);
-
         zmax = Math.min(zmax, 10 * zmin)
-        var zmid = 0.5 * (zmin + zmax);
 
-        var scalefac = 1;
         var scalefacz = 0.05;
 
         var color = d3.scaleLinear()
@@ -141,7 +129,7 @@ window.addEventListener('DOMContentLoaded', () => {
             .range(['blue', 'skyblue', 'red'])
 
         for (var k = 0; k < vertices_count; ++k) {
-            var newvert = new THREE.Vector3((xgrid[k] - xmid) * scalefac, (ygrid[k] - ymid) * scalefac, (values[k] - zmid) * scalefacz);
+            var newvert = new THREE.Vector3((xgrid[k]), (ygrid[k]), (values[k]) * scalefacz);
             geometry.vertices.push(newvert);
         }
 
@@ -184,6 +172,102 @@ window.addEventListener('DOMContentLoaded', () => {
 
         return mesh;
     }
+
+    
+    //cross section-------------------------------------------------------------------------------------------------
+    function drawCrossSection(loss) {
+        d3.select('#crossSection').select('svg').remove();
+
+        var margin = {
+                top: 10,
+                right: 30,
+                bottom: 30,
+                left: 60
+            },
+            width = 600 - margin.left - margin.right,
+            height = 400 - margin.top - margin.bottom;
+
+        var svg = d3.select("#crossSection")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        var filteredData = {};
+
+        for (model in loss_mesh) {
+            if (loss_flag[model] === 1) {
+                // filteredData[model] = selectedValues(loss)
+
+                var points = [];
+
+                (zvalue - 0.005) && p.Z <= (zvalue + 0.005)
+
+                if ((loss - 0.005) <= loss_mesh[model].geometry.vertices.z && (loss + 0.005) >= loss_mesh[model].geometry.vertices.z) {
+                    var filteredX = loss_mesh[model].geometry.vertices.x;
+                    var filteredY = loss_mesh[model].geometry.vertices.y;
+
+                    points.push({
+                        filteredX,
+                        filteredY
+                    })
+                }
+                filteredData[model] = points;
+            }
+        }
+
+        console.log(filteredData)
+
+        // svg.append('rect')
+        //     .attr('x', 0)
+        //     .attr('y', 0)
+        //     .attr('width', width + 5)
+        //     .attr('height', height + 5)
+        //     .style('fill', 'white')
+        //     .style('stroke', '#000')
+        //     .style('stroke-width', 1)
+
+        // var xScale = d3.scaleLinear()
+        //     .domain(d3.extent(filteredData.map(p => p.X)))
+        //     .range([0, width]);
+
+        // svg.append("g")
+        //     .attr("transform", "translate(0," + height + ")")
+        //     .call(d3.axisBottom(xScale));
+
+        // var yScale = d3.scaleLinear()
+        //     .domain(d3.extent(filteredData.map(p => p.Y)))
+        //     .range([height, 0]);
+
+        // svg.append("g")
+        //     .call(d3.axisLeft(yScale));
+
+        // svg.append('g')
+        //     .selectAll("circle")
+        //     .data(filteredData)
+        //     .enter()
+        //     .append("circle")
+        //     .attr("cx", function (d) {
+        //         return xScale(d.X);
+        //     })
+        //     .attr("cy", function (d) {
+        //         return yScale(d.Y);
+        //     })
+        //     .attr("r", 3)
+        //     .style("fill", function (d) {
+        //         return color_scale(d.concentration)
+        //     })
+    }
+
+    //slider for rectangle
+    var slider = document.getElementById("myRange");
+    slider.oninput = function () {
+        drawCrossSection(0);
+    }
+
+    //-------------------------------------------------------------------------------------------------------------
+
 
     //loss legend
     var color_scale_loss = d3.scaleLinear()

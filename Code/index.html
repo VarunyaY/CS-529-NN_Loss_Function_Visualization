@@ -8,7 +8,6 @@
   <title> Visualization of Loss Landscapes in Neural Networks </title>
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-
   <link rel="stylesheet" href="/src/css/main.css" />
 
   <script src="https://threejs.org/build/three.js"></script>
@@ -17,7 +16,6 @@
 
 
   <script src='/src/js/index.js'></script>
-
 </head>
 
 <body>
@@ -34,13 +32,6 @@
         <button id='b_resnet_ns_loss' class='modelButton'> Resnet No Short </button>
         <button id='b_resnet_loss' class='modelButton'> Resnet </button>
         <button id='b_vgg_loss' class='modelButton'> VGG </button>
-
-        <div>
-          <!-- <button id="info">Info</button> -->
-
-          
-
-        </div>
       </div>
     </div>
   </div>
@@ -59,25 +50,28 @@
   </div>
 
   <div id='mainContainer'>
-    <div id='scene'>
-    </div>
+    <div id='scene'> </div>
 
     <div class='legend'>
       <svg id='lossLegendSVG'></svg>
       <div>Loss</div>
     </div>
 
-    <div id='crossSection'> </div> 
+    <div id='crossSection'>
+    <!-- add here   -->
+    </div>
   </div>
 
   <div>
-      <div> Slider to move the plane: </div>
-      <div class="slidecontainer">
-          <input type="range" min="-5" max="5" value="0" step='0.001' class="slider" id="myRange">
-      </div>
+    <div> Loss Value </div>
+    <div class="slidecontainer">
+      <input type="range" min="0" max="1.4" value="0" step='0.001' class="slider" id="myRange">
+    </div>
   </div>
 
-  <div id='disclaimer'> The Visualization only focusses on four models, namely:
+  <div id='disclaimer'>
+    <b>Disclaimer</b>
+    </br>The Visualization only focusses on four models, namely:
     Resnet, Densenet, Renset no Short and VGG.
     </br>
     The Red, Green and Blue lines indicate the directions of positive X, Y and Z axes.
