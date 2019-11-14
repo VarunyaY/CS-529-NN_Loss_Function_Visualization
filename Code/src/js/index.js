@@ -116,8 +116,8 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        console.log(d3.max(values))
-        console.log(d3.min(values))
+        console.log(d3.max(values) * 0.05)
+        console.log(d3.min(values) * 0.05)
 
         var vertices_count = values.length;
 
@@ -172,7 +172,9 @@ window.addEventListener('DOMContentLoaded', () => {
         return mesh;
     }
 
-    function drawCrossSection(loss) {
+    var initialLoad = 0;
+
+    function drawCrossSection(loss, initialLoad) {
         d3.select('#crossSection').select('svg').remove();
 
         var margin = {
@@ -191,27 +193,6 @@ window.addEventListener('DOMContentLoaded', () => {
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        var filteredData = {};
-
-        for (model in loss_mesh) {
-            if (loss_flag[model] === 1) {
-                var points = [];
-                loss_mesh[model].geometry.vertices.forEach(element => {
-                    if ((parseFloat(loss) - 0.01) <= element.z && (parseFloat(loss) + 0.01) >= element.z) {
-                        var filteredX = element.x;
-                        var filteredY = element.y;
-                        var filteredZ = element.z;
-
-                        points.push({
-                            filteredX,
-                            filteredY,
-                            filteredZ
-                        })
-                    }
-                });
-                filteredData[model] = points;
-            }
-        }
 
         var xScale = d3.scaleLinear()
             .domain([-1, 1])
@@ -227,6 +208,32 @@ window.addEventListener('DOMContentLoaded', () => {
 
         svg.append("g")
             .call(d3.axisLeft(yScale));
+
+        if (initialLoad === true) {
+            return
+        }
+
+        var filteredData = {};
+
+        for (model in loss_mesh) {
+            if (loss_flag[model] === 1) {
+                var points = [];
+                loss_mesh[model].geometry.vertices.forEach(element => {
+                    if ((parseFloat(loss) - 0.001) <= element.z && (parseFloat(loss) + 0.001) >= element.z) {
+                        var filteredX = element.x;
+                        var filteredY = element.y;
+                        var filteredZ = element.z;
+
+                        points.push({
+                            filteredX,
+                            filteredY,
+                            filteredZ
+                        })
+                    }
+                });
+                filteredData[model] = points;
+            }
+        }
 
         for (model in loss_mesh) {
             if (loss_flag[model] === 1) {
@@ -273,8 +280,10 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     var slider = document.getElementById("myRange");
+    drawCrossSection(0,true)
     slider.oninput = function () {
-        drawCrossSection(this.value);
+        drawCrossSection(this.value, false);
+        d3.select('#currentLoss').html(this.value)
     }
 
     d3.select('.how')
@@ -384,11 +393,11 @@ window.addEventListener('DOMContentLoaded', () => {
             var y = intersects[0].point.y
             var z = intersects[0].point.z
 
-            if ((x >= -1 && x <= 1) && (y >= -3 && y <= -1))
+            if ((x >= -1 && x <= 1) && (z >= -1 && z <= 1))
                 $("#tooltip").text('x = ' + parseFloat(x).toFixed(2) + ' y = ' + parseFloat(z).toFixed(2) + ' loss = ' + (parseFloat(y + 2).toFixed(2)));
         }
     }
-    
+
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
     document.addEventListener('mousemove', onMouseMove, false);
