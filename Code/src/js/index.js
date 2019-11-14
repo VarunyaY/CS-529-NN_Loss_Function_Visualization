@@ -17,6 +17,9 @@ window.addEventListener('DOMContentLoaded', () => {
     axesHelper.rotation.x = -Math.PI / 2;
     scene.add(axesHelper);
 
+    var raycaster;
+    var mouse;
+
     var loss_mesh = {};
 
     var loss_flag = {
@@ -173,7 +176,33 @@ window.addEventListener('DOMContentLoaded', () => {
         return mesh;
     }
 
-    
+    // Code for tooltip
+    function onMouseMove(event) {
+        var bounds = event.target.getBoundingClientRect();
+        var x = event.clientX - bounds.left;
+        var y = event.clientY - bounds.top;
+        $("#tooltip").text("");
+        $("#tooltip").position({
+        my: "left+3 bottom-3",
+        of: event,
+        collision: "fit"
+        });
+        mouse.x = (x / renderer.domElement.clientWidth) * 2 - 1;
+        mouse.y =  - (y / renderer.domElement.clientHeight) * 2 + 1;
+        //console.log('x = '+ mouse.x + ' y = ' + mouse.y )
+        raycaster.setFromCamera(mouse, camera);
+        
+        // calculate objects intersecting the picking ray
+        var intersects = raycaster.intersectObjects(scene.children);
+        if (intersects.length > 0) {
+        var x = intersects[0].point.x
+        var y = intersects[0].point.y
+        var z = intersects[0].point.z
+        console.log('x = ' + x + ' y = ' + y + ' z = ' + z)
+        $("#tooltip").text('x = ' + parseFloat(x).toFixed(2) + ' y = ' + parseFloat(y).toFixed(2) + ' z = ' + parseFloat(z).toFixed(2));
+        }
+    }
+
     //cross section-------------------------------------------------------------------------------------------------
     function drawCrossSection(loss) {
         d3.select('#crossSection').select('svg').remove();
@@ -357,6 +386,10 @@ window.addEventListener('DOMContentLoaded', () => {
         .on('click', function () {
             camera.position.set(0, 0, 5);
         })
+        
+    raycaster = new THREE.Raycaster();
+    mouse = new THREE.Vector2();
+    document.addEventListener('mousemove', onMouseMove, false);
 
     function reload() {
         requestAnimationFrame(reload);
