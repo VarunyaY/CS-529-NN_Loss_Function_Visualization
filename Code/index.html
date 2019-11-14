@@ -13,8 +13,6 @@
   <script src="https://threejs.org/build/three.js"></script>
   <script src="lib/js/OrbitControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.6/d3.min.js"></script>
-
-
   <script src='/src/js/index.js'></script>
 </head>
 
@@ -25,13 +23,12 @@
     <div>
       <div class='text'> <b> Model </b></div>
     </div>
-
     <div>
       <div class='modelMenu'>
         <button id='b_densenet_loss' class='modelButton'> Densenet </button>
         <button id='b_resnet_ns_loss' class='modelButton'> Resnet No Short </button>
         <button id='b_resnet_loss' class='modelButton'> Resnet </button>
-        <button id='b_vgg_loss' class='modelButton'> VGG </button>
+        <button id='b_vgg_loss' class='modelButton'> VGG </button>        
       </div>
     </div>
   </div>
@@ -51,34 +48,44 @@
 
   <div id='mainContainer'>
     <div id='scene'> </div>
-
     <div class='legend'>
       <svg id='lossLegendSVG'></svg>
       <div>Loss</div>
     </div>
-
     <div id='crossSection'>
-    <!-- add here   -->
     </div>
   </div>
 
-  <div>
-    <div> Loss Value </div>
-    <div class="slidecontainer">
-      <input type="range" min="0" max="1.4" value="0" step='0.001' class="slider" id="myRange">
+  <div>    
+    <div class="">
+      <input type="range" min="0" max="0.4" value="0" step='0.001' class="slider" id="myRange">
     </div>
   </div>
 
   <div id='disclaimer'>
     <b>Disclaimer</b>
-    </br>The Visualization only focusses on four models, namely:
-    Resnet, Densenet, Renset no Short and VGG.
-    </br>
-    The Red, Green and Blue lines indicate the directions of positive X, Y and Z axes.
-    </br>
-    The values of loss are scaled to 5% of their original value.
+    <ul>
+      <li>
+          The Visualization only focusses on four models, namely:
+          Resnet, Densenet, Renset no Short and VGG.
+      </li>
+      <li>
+          The Red, Green and Blue lines indicate the directions of positive X, Y and Z axes.
+      </li>
+      <li>
+          Please select a model to view and interact with slider to know the X, Y directio values.
+      </li>
+      <li>
+          The values of loss are scaled to 5% of their original value.
+      </li>
+      <li>
+          Each model has min and max value with respect to loss and the color range applies to each model's values range.
+      </li>
+      <li>
+          Inorder to compare all the models' convex nature of the loss functions x direction, y direction and loss values are scaled down to 5%.  
+      </li>
+      
+    </ul>
   </div>
-
 </body>
-
 </html>

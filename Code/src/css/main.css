@@ -113,20 +113,16 @@ label {
   margin-left: 10px;
 }
 
-/*--------------------------------------------------------------------------------------------------------------*/
-
-.slideContainer{
-  display: flex;
-}
-
-.slider {
+#myRange{
   -webkit-appearance: none;
-  width: 100%;
+  width: 600px;
   height: 15px;
   border-radius: 5px;
   background: #d3d3d3;
   outline: none;
   opacity: 0.7;
+  margin-left: 750px;
+  margin-right: 100px;
 }
 
 .slider::-webkit-slider-thumb {
@@ -146,3 +142,4 @@ label {
   background: #4CAF50;
   cursor: pointer;
 }
+

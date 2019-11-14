@@ -198,72 +198,80 @@ window.addEventListener('DOMContentLoaded', () => {
 
         for (model in loss_mesh) {
             if (loss_flag[model] === 1) {
-                // filteredData[model] = selectedValues(loss)
-
                 var points = [];
-
-                (zvalue - 0.005) && p.Z <= (zvalue + 0.005)
-
-                if ((loss - 0.005) <= loss_mesh[model].geometry.vertices.z && (loss + 0.005) >= loss_mesh[model].geometry.vertices.z) {
-                    var filteredX = loss_mesh[model].geometry.vertices.x;
-                    var filteredY = loss_mesh[model].geometry.vertices.y;
-
-                    points.push({
-                        filteredX,
-                        filteredY
-                    })
-                }
+                loss_mesh[model].geometry.vertices.forEach(element => {
+                    if ((parseFloat(loss) - 0.01) <= element.z && (parseFloat(loss) + 0.01) >= element.z) {
+                        var filteredX = element.x;
+                        var filteredY = element.y;
+                        var filteredZ = element.z;
+    
+                        points.push({
+                            filteredX,
+                            filteredY,
+                            filteredZ
+                        })
+                    }
+                });
                 filteredData[model] = points;
             }
         }
-
+        
         console.log(filteredData)
 
-        // svg.append('rect')
-        //     .attr('x', 0)
-        //     .attr('y', 0)
-        //     .attr('width', width + 5)
-        //     .attr('height', height + 5)
-        //     .style('fill', 'white')
-        //     .style('stroke', '#000')
-        //     .style('stroke-width', 1)
+        svg.append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', width + 5)
+            .attr('height', height + 5)
+            .style('fill', 'white')
+            .style('stroke', '#000')
+            .style('stroke-width', 1)
 
-        // var xScale = d3.scaleLinear()
-        //     .domain(d3.extent(filteredData.map(p => p.X)))
-        //     .range([0, width]);
+        
+        for (model in loss_mesh){
+            if (loss_flag[model] === 1) {
+                selectedModel = model;
+            }            
+        }
+       
+         
 
-        // svg.append("g")
-        //     .attr("transform", "translate(0," + height + ")")
-        //     .call(d3.axisBottom(xScale));
+        var xScale = d3.scaleLinear()
+            .domain(d3.extent(filteredData[selectedModel].map(p => p.filteredX)))
+            .range([0, width]);
 
-        // var yScale = d3.scaleLinear()
-        //     .domain(d3.extent(filteredData.map(p => p.Y)))
-        //     .range([height, 0]);
+        svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(xScale));
 
-        // svg.append("g")
-        //     .call(d3.axisLeft(yScale));
+        var yScale = d3.scaleLinear()
+            .domain(d3.extent(filteredData[selectedModel].map(p => p.filteredY)))
+            .range([height, 0]);
 
-        // svg.append('g')
-        //     .selectAll("circle")
-        //     .data(filteredData)
-        //     .enter()
-        //     .append("circle")
-        //     .attr("cx", function (d) {
-        //         return xScale(d.X);
-        //     })
-        //     .attr("cy", function (d) {
-        //         return yScale(d.Y);
-        //     })
-        //     .attr("r", 3)
-        //     .style("fill", function (d) {
-        //         return color_scale(d.concentration)
-        //     })
+        svg.append("g")
+            .call(d3.axisLeft(yScale));
+
+        svg.append('g')
+            .selectAll("circle")
+            .data(filteredData[selectedModel])
+            .enter()
+            .append("circle")
+            .attr("cx", function (d) {
+                return xScale(d.filteredX);
+            })
+            .attr("cy", function (d) {
+                return yScale(d.filteredY);
+            })
+            .attr("r", 3)
+            .style("fill", function (d) {
+                return "red"
+            })
     }
 
     //slider for rectangle
     var slider = document.getElementById("myRange");
     slider.oninput = function () {
-        drawCrossSection(0);
+        drawCrossSection(this.value);
     }
 
     //-------------------------------------------------------------------------------------------------------------
