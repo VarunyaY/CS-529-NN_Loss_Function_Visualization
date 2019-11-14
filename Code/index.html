@@ -25,23 +25,22 @@
 
   <div id='buttonMenu'>
     <div>
-      <div class='text'> <b>LOSS</b></div>
-      <div class='text'><b>ACCURACY</b></div>
+      <div class='text'> <b> Model </b></div>
     </div>
 
     <div>
       <div class='modelMenu'>
-        <button id='b_resnet_loss' class='modelButton'> Resnet </button>
-        <button id='b_resnet_ns_loss' class='modelButton'> Resnet No Short </button>
         <button id='b_densenet_loss' class='modelButton'> Densenet </button>
+        <button id='b_resnet_ns_loss' class='modelButton'> Resnet No Short </button>
+        <button id='b_resnet_loss' class='modelButton'> Resnet </button>
         <button id='b_vgg_loss' class='modelButton'> VGG </button>
-      </div>
 
-      <div class='modelMenu'>
-        <button id='b_resnet_acc' class='modelButton'> Resnet </button>
-        <button id='b_resnet_ns_acc' class='modelButton'> Resnet No Short </button>
-        <button id='b_densenet_acc' class='modelButton'> Densenet </button>
-        <button id='b_vgg_acc' class='modelButton'> VGG </button>
+        <div>
+          <!-- <button id="info">Info</button> -->
+
+          
+
+        </div>
       </div>
     </div>
   </div>
@@ -56,12 +55,8 @@
 
     <label> Auto Rotate
       <input type="checkbox" id='b_auto_rotate'>
-
     </label>
-
   </div>
-
-
 
   <div id='mainContainer'>
     <div id='scene'>
@@ -72,14 +67,14 @@
       <div>Loss</div>
     </div>
 
-    <div class='legend'>
-      <svg id='accLegendSVG'></svg>
-      <div>Accuracy</div>
-    </div>
+    <div id='crossSection'> </div> 
+  </div>
 
-    <div>
-      <!-- add cross section here  -->
-    </div>
+  <div>
+      <div> Slider to move the plane: </div>
+      <div class="slidecontainer">
+          <input type="range" min="-5" max="5" value="0" step='0.001' class="slider" id="myRange">
+      </div>
   </div>
 
   <div id='disclaimer'> The Visualization only focusses on four models, namely:
@@ -87,7 +82,7 @@
     </br>
     The Red, Green and Blue lines indicate the directions of positive X, Y and Z axes.
     </br>
-    The values of loss and accuracies are scaled to 5% of their original value.
+    The values of loss are scaled to 5% of their original value.
   </div>
 
 </body>

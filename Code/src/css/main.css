@@ -25,15 +25,27 @@ body {
   background-color: rgb(27, 66, 110);
   border: 1px solid #ffffff;
   border-radius: 20px;
-  ;
   color: white;
   padding: 10px 24px;
   cursor: pointer;
+  outline: none;
+  float: left;
+}
+
+#info{
+  background-color: rgb(83, 122, 20);
+  border: 1px solid #ffffff;
+  border-radius: 20px;
+  color: white;
+  padding: 10px 24px;
+  cursor: pointer;
+  outline: none;
   float: left;
 }
 
 .modelMenu button:hover {
   background-color: rgb(49, 116, 192);
+  outline: none;
 }
 
 #options {
@@ -56,7 +68,6 @@ body {
   padding-top: 15px;
   margin-right: 10px;
 }
-
 
 #scene {
   width: 50%;
@@ -98,17 +109,5 @@ label {
   width: 15px;
   height: 600px;
   fill: url(#linear_gradient_L);
-  margin-left: 10px;
-}
-
-#accLegendSVG {
-  margin-left: 10px;
-  height: 400px;
-}
-
-#accLegendBar {
-  width: 15px;
-  height: 600px;
-  fill: url(#linear_gradient_A);
   margin-left: 10px;
 }

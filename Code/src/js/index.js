@@ -18,7 +18,6 @@ window.addEventListener('DOMContentLoaded', () => {
     scene.add(axesHelper);
 
     var loss_mesh = {};
-    var acc_mesh = {};
 
     var loss_flag = {
         'resnet': 0,
@@ -27,61 +26,41 @@ window.addEventListener('DOMContentLoaded', () => {
         'resnet_no_short': 0
     };
 
-    var acc_flag = {
-        'resnet': 0,
-        'densenet': 0,
-        'vgg': 0,
-        'resnet_no_short': 0
-    };
-
-    var model_count = 4;
-
     var file_names = [
         'densenet_train_loss.json',
         'resnet_ns_train_loss.json',
         'resnet_train_loss.json',
-        'vgg_train_loss.json',
-
-        'densenet_train_accuracy.json',
-        'resnet_ns_train_accuracy.json',
-        'resnet_train_accuracy.json',
-        'vgg_train_accuracy.json'
+        'vgg_train_loss.json'
     ]
 
-    function addEvent(id, model, type) {
+    var xDirection = [];
+    var yDirection = [];
+
+    d3.csv('assets/data/xDirection.csv', function (data) {
+        for (var k = 0; k < data.length; k++) {
+            xDirection.push(parseFloat(data[k]['X']))
+        }
+    })
+
+    
+    yDirection = xDirection;
+
+    function addEvent(id, model) {
         d3.select(id)
             .on('click', function () {
+                if (loss_flag[model] === 0) {
+                    scene.add(loss_mesh[model])
 
-                if (type === 'loss') {
-                    if (loss_flag[model] === 0) {
-                        scene.add(loss_mesh[model])
+                    loss_flag[model] = 1;
 
-                        loss_flag[model] = 1;
-
-                        d3.select(id)
-                            .style('background-color', '#3174c0')
-                    } else {
-                        scene.remove(loss_mesh[model]);
-                        loss_flag[model] = 0;
-
-                        d3.select(id)
-                            .style('background-color', '#1b426e')
-                    }
+                    d3.select(id)
+                        .style('background-color', '#3174c0')
                 } else {
-                    if (acc_flag[model] === 0) {
-                        scene.add(acc_mesh[model])
+                    scene.remove(loss_mesh[model]);
+                    loss_flag[model] = 0;
 
-                        acc_flag[model] = 1;
-
-                        d3.select(id)
-                            .style('background-color', '#3174c0')
-                    } else {
-                        scene.remove(acc_mesh[model]);
-                        acc_flag[model] = 0;
-
-                        d3.select(id)
-                            .style('background-color', '#1b426e')
-                    }
+                    d3.select(id)
+                        .style('background-color', '#1b426e')
                 }
             })
     }
@@ -89,46 +68,24 @@ window.addEventListener('DOMContentLoaded', () => {
     function loadData(filename) {
         d3.json('assets/data/' + filename, function (data) {
 
-            //loss
             if (filename === 'resnet_train_loss.json') {
-                loss_mesh['resnet'] = create_mesh(data, 'loss')
-                addEvent('#b_resnet_loss', 'resnet', 'loss');
+                loss_mesh['resnet'] = create_mesh(data)
+                addEvent('#b_resnet_loss', 'resnet');
             }
 
             if (filename === 'densenet_train_loss.json') {
-                loss_mesh['densenet'] = create_mesh(data, 'loss')
-                addEvent('#b_densenet_loss', 'densenet', 'loss');
+                loss_mesh['densenet'] = create_mesh(data)
+                addEvent('#b_densenet_loss', 'densenet');
             }
 
             if (filename === 'vgg_train_loss.json') {
-                loss_mesh['vgg'] = create_mesh(data, 'loss')
-                addEvent('#b_vgg_loss', 'vgg', 'loss');
+                loss_mesh['vgg'] = create_mesh(data)
+                addEvent('#b_vgg_loss', 'vgg');
             }
 
             if (filename === 'resnet_ns_train_loss.json') {
-                loss_mesh['resnet_no_short'] = create_mesh(data, 'loss')
-                addEvent('#b_resnet_ns_loss', 'resnet_no_short', 'loss');
-            }
-
-            //accuracy
-            if (filename === 'resnet_train_accuracy.json') {
-                acc_mesh['resnet'] = create_mesh(data, 'accuracy')
-                addEvent('#b_resnet_acc', 'resnet', 'accuracy');
-            }
-
-            if (filename === 'densenet_train_accuracy.json') {
-                acc_mesh['densenet'] = create_mesh(data, 'accuracy')
-                addEvent('#b_densenet_acc', 'densenet', 'accuracy');
-            }
-
-            if (filename === 'vgg_train_accuracy.json') {
-                acc_mesh['vgg'] = create_mesh(data, 'accuracy')
-                addEvent('#b_vgg_acc', 'vgg', 'accuracy');
-            }
-
-            if (filename === 'resnet_ns_train_accuracy.json') {
-                acc_mesh['resnet_no_short'] = create_mesh(data, 'accuracy')
-                addEvent('#b_resnet_ns_acc', 'resnet_no_short', 'accuracy');
+                loss_mesh['resnet_no_short'] = create_mesh(data)
+                addEvent('#b_resnet_ns_loss', 'resnet_no_short');
             }
         })
     }
@@ -137,20 +94,7 @@ window.addEventListener('DOMContentLoaded', () => {
         loadData(file_names[i]);
     }
 
-    var x = [-1, -0.96, -0.92, -0.88, -0.84,
-        -0.8, -0.76, -0.72, -0.68, -0.64,
-        -0.6, -0.56, -0.52, -0.48, -0.44,
-        -0.4, -0.36, -0.32, -0.28, -0.24, -0.2,
-        -0.16, -0.12, -0.08, -0.04, 0, 0.04,
-        0.08, 0.12, 0.16, 0.2, 0.24,
-        0.28, 0.32, 0.36, 0.4, 0.44,
-        0.48, 0.52, 0.56, 0.6, 0.64,
-        0.68, 0.72, 0.76, 0.8, 0.84, 0.88, 0.92, 0.96, 1
-    ]
-
-    var y = x;
-
-    function create_mesh(data, type) {
+    function create_mesh(data) {
         var X_keys = Object.keys(data)
         var Y_keys = Object.keys(data)
 
@@ -160,16 +104,16 @@ window.addEventListener('DOMContentLoaded', () => {
         var ygrid = [];
         var values = [];
 
-        for (i = 0; i < x.length; i++) {
-            for (j = 0; j < y.length; j++) {
+        for (i = 0; i < xDirection.length; i++) {
+            for (j = 0; j < yDirection.length; j++) {
 
-                a = x[i];
-                b = y[j];
-                c = data[a][b];
+                xValue = xDirection[i];
+                yValue = yDirection[j];
+                zValue = data[xValue][yValue];
 
-                xgrid.push(a);
-                ygrid.push(b)
-                values.push(c);
+                xgrid.push(xValue);
+                ygrid.push(yValue)
+                values.push(zValue);
             }
         }
 
@@ -178,32 +122,24 @@ window.addEventListener('DOMContentLoaded', () => {
         var xmin = d3.min(X_keys);
         var xmax = d3.max(X_keys);
         var xmid = 0.5 * (xmin + xmax);
-        var xrange = xmax - xmin;
 
         var ymin = d3.min(Y_keys);
         var ymax = d3.max(Y_keys);
         var ymid = 0.5 * (ymin + ymax);
-        var yrange = ymax - ymin;
 
         var zmin = d3.min(values);
         var zmax = d3.max(values);
 
         zmax = Math.min(zmax, 10 * zmin)
         var zmid = 0.5 * (zmin + zmax);
-        var zrange = zmax - zmin;
 
-        var scalefac = 1
-        var scalefacz = 0.05
+        var scalefac = 1;
+        var scalefacz = 0.05;
 
-        if (type === 'loss') {
-            var color = d3.scaleLinear()
-                .domain([d3.min(values), (d3.min(values) + d3.max(values) / 2), d3.max(values)])
-                .range(['blue', 'skyblue', 'red'])
-        } else {
-            var color = d3.scaleLinear()
-                .domain([d3.min(values), (d3.min(values) + d3.max(values) / 2), d3.max(values)])
-                .range(['red', 'skyblue', 'blue'])
-        }
+        var color = d3.scaleLinear()
+            .domain([d3.min(values), (d3.min(values) + d3.max(values) / 2), d3.max(values)])
+            .range(['blue', 'skyblue', 'red'])
+
         for (var k = 0; k < vertices_count; ++k) {
             var newvert = new THREE.Vector3((xgrid[k] - xmid) * scalefac, (ygrid[k] - ymid) * scalefac, (values[k] - zmid) * scalefacz);
             geometry.vertices.push(newvert);
@@ -282,38 +218,6 @@ window.addEventListener('DOMContentLoaded', () => {
         .attr('id', 'lossLegendBar')
 
 
-    //accuracy Legend   
-    var color_scale_acc = d3.scaleLinear()
-        .domain([0, 50, 100])
-        .range(['red', 'skyblue', 'blue'])
-
-    var defs = d3.select('#accLegendSVG')
-        .append("defs");
-
-    linearGradient = defs.append("linearGradient")
-        .attr('id', 'linear_gradient_A')
-
-    linearGradient
-        .attr("x1", "0%")
-        .attr("y1", "50%")
-        .attr("x2", "0%")
-        .attr("y2", "0%");
-
-    linearGradient.selectAll("stop")
-        .data(color_scale_acc.range())
-        .enter()
-        .append("stop")
-        .attr("offset", function (d, i) {
-            return i / (color_scale_acc.range().length);
-        })
-        .attr("stop-color", function (d) {
-            return d;
-        });
-
-    d3.select('#accLegendSVG')
-        .append("rect")
-        .attr('id', 'accLegendBar')
-
     //wireframe
     var wireframe_flag = 0;
 
@@ -321,7 +225,7 @@ window.addEventListener('DOMContentLoaded', () => {
         .on('change', function () {
             if (wireframe_flag === 0) {
                 for (model in loss_mesh) {
-                    if (loss_flag[model] == 1) {
+                    if (loss_flag[model] === 1) {
                         scene.remove(loss_mesh[model]);
                         loss_mesh[model].material.wireframe = true;
                         scene.add(loss_mesh[model])
@@ -329,33 +233,15 @@ window.addEventListener('DOMContentLoaded', () => {
                     loss_mesh[model].material.wireframe = true;
                 }
 
-                for (model in acc_mesh) {
-                    if (acc_flag[model] === 1) {
-                        scene.remove(acc_mesh[model]);
-                        acc_mesh[model].material.wireframe = true;
-                        scene.add(acc_mesh[model])
-                    }
-                    acc_mesh[model].material.wireframe = true;
-                }
-
                 wireframe_flag = 1;
             } else {
                 for (model in loss_mesh) {
-                    if (loss_flag[model] == 1) {
+                    if (loss_flag[model] === 1) {
                         scene.remove(loss_mesh[model]);
                         loss_mesh[model].material.wireframe = false;
                         scene.add(loss_mesh[model])
                     }
                     loss_mesh[model].material.wireframe = false;
-                }
-
-                for (model in acc_mesh) {
-                    if (acc_flag[model] === 1) {
-                        scene.remove(acc_mesh[model]);
-                        acc_mesh[model].material.wireframe = false;
-                        scene.add(acc_mesh[model])
-                    }
-                    acc_mesh[model].material.wireframe = false;
                 }
 
                 wireframe_flag = 0;
