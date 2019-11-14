@@ -8,7 +8,7 @@ window.addEventListener('DOMContentLoaded', () => {
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.update()
 
-    camera.position.set(0, 0, 5);
+    camera.position.set(4, 0, 4);
     renderer.setSize(600, 400);
     document.getElementById('scene').appendChild(renderer.domElement);
 
@@ -16,9 +16,6 @@ window.addEventListener('DOMContentLoaded', () => {
     axesHelper.translateY(-2);
     axesHelper.rotation.x = -Math.PI / 2;
     scene.add(axesHelper);
-
-    var raycaster;
-    var mouse;
 
     var loss_mesh = {};
 
@@ -114,22 +111,21 @@ window.addEventListener('DOMContentLoaded', () => {
                 zValue = data[xValue][yValue];
 
                 xgrid.push(xValue);
-                ygrid.push(yValue)
+                ygrid.push(yValue);
                 values.push(zValue);
             }
         }
 
-        var vertices_count = values.length;
+        console.log(d3.max(values))
+        console.log(d3.min(values))
 
-        var zmin = d3.min(values);
-        var zmax = d3.max(values);
-        zmax = Math.min(zmax, 10 * zmin)
+        var vertices_count = values.length;
 
         var scalefacz = 0.05;
 
         var color = d3.scaleLinear()
             .domain([d3.min(values), (d3.min(values) + d3.max(values) / 2), d3.max(values)])
-            .range(['blue', 'skyblue', 'red'])
+            .range(['blue', 'white', 'red'])
 
         for (var k = 0; k < vertices_count; ++k) {
             var newvert = new THREE.Vector3((xgrid[k]), (ygrid[k]), (values[k]) * scalefacz);
@@ -139,22 +135,22 @@ window.addEventListener('DOMContentLoaded', () => {
         for (var j = 0; j < X_keys.length - 1; j++) {
             for (var i = 0; i < Y_keys.length - 1; i++) {
 
-                var n0 = j * X_keys.length + i;
-                var n1 = n0 + 1;
+                var v0 = j * X_keys.length + i;
+                var v1 = v0 + 1;
 
-                var n2 = (j + 1) * X_keys.length + i + 1;
-                var n3 = n2 - 1;
+                var v2 = (j + 1) * X_keys.length + i + 1;
+                var v3 = v2 - 1;
 
-                face1 = new THREE.Face3(n0, n1, n2);
-                face2 = new THREE.Face3(n2, n3, n0);
+                face1 = new THREE.Face3(v0, v1, v2);
+                face2 = new THREE.Face3(v2, v3, v0);
 
-                face1.vertexColors[0] = new THREE.Color(color(values[n0]));
-                face1.vertexColors[1] = new THREE.Color(color(values[n1]));
-                face1.vertexColors[2] = new THREE.Color(color(values[n2]));
+                face1.vertexColors[0] = new THREE.Color(color(values[v0]));
+                face1.vertexColors[1] = new THREE.Color(color(values[v1]));
+                face1.vertexColors[2] = new THREE.Color(color(values[v2]));
 
-                face2.vertexColors[0] = new THREE.Color(color(values[n2]));
-                face2.vertexColors[1] = new THREE.Color(color(values[n3]));
-                face2.vertexColors[2] = new THREE.Color(color(values[n0]));
+                face2.vertexColors[0] = new THREE.Color(color(values[v2]));
+                face2.vertexColors[1] = new THREE.Color(color(values[v3]));
+                face2.vertexColors[2] = new THREE.Color(color(values[v0]));
 
                 geometry.faces.push(face1);
                 geometry.faces.push(face2);
@@ -176,34 +172,6 @@ window.addEventListener('DOMContentLoaded', () => {
         return mesh;
     }
 
-    // Code for tooltip
-    function onMouseMove(event) {
-        var bounds = event.target.getBoundingClientRect();
-        var x = event.clientX - bounds.left;
-        var y = event.clientY - bounds.top;
-        $("#tooltip").text("");
-        $("#tooltip").position({
-        my: "left+3 bottom-3",
-        of: event,
-        collision: "fit"
-        });
-        mouse.x = (x / renderer.domElement.clientWidth) * 2 - 1;
-        mouse.y =  - (y / renderer.domElement.clientHeight) * 2 + 1;
-        //console.log('x = '+ mouse.x + ' y = ' + mouse.y )
-        raycaster.setFromCamera(mouse, camera);
-        
-        // calculate objects intersecting the picking ray
-        var intersects = raycaster.intersectObjects(scene.children);
-        if (intersects.length > 0) {
-        var x = intersects[0].point.x
-        var y = intersects[0].point.y
-        var z = intersects[0].point.z
-        console.log('x = ' + x + ' y = ' + y + ' z = ' + z)
-        $("#tooltip").text('x = ' + parseFloat(x).toFixed(2) + ' y = ' + parseFloat(y).toFixed(2) + ' z = ' + parseFloat(z).toFixed(2));
-        }
-    }
-
-    //cross section-------------------------------------------------------------------------------------------------
     function drawCrossSection(loss) {
         d3.select('#crossSection').select('svg').remove();
 
@@ -233,7 +201,7 @@ window.addEventListener('DOMContentLoaded', () => {
                         var filteredX = element.x;
                         var filteredY = element.y;
                         var filteredZ = element.z;
-    
+
                         points.push({
                             filteredX,
                             filteredY,
@@ -244,29 +212,9 @@ window.addEventListener('DOMContentLoaded', () => {
                 filteredData[model] = points;
             }
         }
-        
-        console.log(filteredData)
-
-        svg.append('rect')
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('width', width + 5)
-            .attr('height', height + 5)
-            .style('fill', 'white')
-            .style('stroke', '#000')
-            .style('stroke-width', 1)
-
-        
-        for (model in loss_mesh){
-            if (loss_flag[model] === 1) {
-                selectedModel = model;
-            }            
-        }
-       
-         
 
         var xScale = d3.scaleLinear()
-            .domain(d3.extent(filteredData[selectedModel].map(p => p.filteredX)))
+            .domain([-1, 1])
             .range([0, width]);
 
         svg.append("g")
@@ -274,39 +222,67 @@ window.addEventListener('DOMContentLoaded', () => {
             .call(d3.axisBottom(xScale));
 
         var yScale = d3.scaleLinear()
-            .domain(d3.extent(filteredData[selectedModel].map(p => p.filteredY)))
+            .domain([-1, 1])
             .range([height, 0]);
 
         svg.append("g")
             .call(d3.axisLeft(yScale));
 
-        svg.append('g')
-            .selectAll("circle")
-            .data(filteredData[selectedModel])
-            .enter()
-            .append("circle")
-            .attr("cx", function (d) {
-                return xScale(d.filteredX);
-            })
-            .attr("cy", function (d) {
-                return yScale(d.filteredY);
-            })
-            .attr("r", 3)
-            .style("fill", function (d) {
-                return "red"
-            })
+        for (model in loss_mesh) {
+            if (loss_flag[model] === 1) {
+                var points = [];
+                loss_mesh[model].geometry.vertices.forEach(element => {
+                    if ((parseFloat(loss) - 0.01) <= element.z && (parseFloat(loss) + 0.01) >= element.z) {
+                        var filteredX = element.x;
+                        var filteredY = element.y;
+                        var filteredZ = element.z;
+
+                        points.push({
+                            filteredX,
+                            filteredY,
+                            filteredZ
+                        })
+                    }
+                });
+                filteredData[model] = points;
+            }
+        }
+
+        var colors = d3.scaleOrdinal()
+            .domain(['densenet', 'resnet_no_short', 'resnet', 'vgg'])
+            .range(['red', 'blue', 'yellow', 'brown'])
+
+        for (model in filteredData) {
+
+            svg.append('g')
+                .selectAll("circle")
+                .data(filteredData[model])
+                .enter()
+                .append("circle")
+                .attr("cx", function (d) {
+                    return xScale(d.filteredX);
+                })
+                .attr("cy", function (d) {
+                    return yScale(d.filteredY);
+                })
+                .attr("r", 3)
+                .style("fill", function (d) {
+                    return colors(model)
+                })
+        }
     }
 
-    //slider for rectangle
     var slider = document.getElementById("myRange");
     slider.oninput = function () {
         drawCrossSection(this.value);
     }
 
-    //-------------------------------------------------------------------------------------------------------------
+    d3.select('.how')
+        .on('click', function () {
+            var popup = document.getElementById('popup');
+            popup.classList.toggle('show')
+        })
 
-
-    //loss legend
     var color_scale_loss = d3.scaleLinear()
         .domain([0, 50, 100])
         .range(['blue', 'skyblue', 'red'])
@@ -338,8 +314,6 @@ window.addEventListener('DOMContentLoaded', () => {
         .append("rect")
         .attr('id', 'lossLegendBar')
 
-
-    //wireframe
     var wireframe_flag = 0;
 
     d3.select('#b_wireframe')
@@ -384,11 +358,39 @@ window.addEventListener('DOMContentLoaded', () => {
 
     d3.select('#reset')
         .on('click', function () {
-            camera.position.set(0, 0, 5);
+            camera.position.set(5, 0, 5);
         })
-        
-    raycaster = new THREE.Raycaster();
-    mouse = new THREE.Vector2();
+
+    function onMouseMove(event) {
+
+        var bounds = event.target.getBoundingClientRect();
+        var x = event.clientX - bounds.left;
+        var y = event.clientY - bounds.top;
+        $("#tooltip").text("");
+        $("#tooltip").position({
+            my: "left+3 bottom-3",
+            of: event,
+            collision: "fit"
+        });
+
+        mouse.x = (x / renderer.domElement.clientWidth) * 2 - 1;
+        mouse.y = -(y / renderer.domElement.clientHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+
+        var intersects = raycaster.intersectObjects(scene.children);
+        if (intersects.length > 0) {
+            var x = intersects[0].point.x
+            var y = intersects[0].point.y
+            var z = intersects[0].point.z
+
+            if ((x >= -1 && x <= 1) && (y >= -3 && y <= -1))
+                $("#tooltip").text('x = ' + parseFloat(x).toFixed(2) + ' y = ' + parseFloat(z).toFixed(2) + ' loss = ' + (parseFloat(y + 2).toFixed(2)));
+        }
+    }
+    
+    var raycaster = new THREE.Raycaster();
+    var mouse = new THREE.Vector2();
     document.addEventListener('mousemove', onMouseMove, false);
 
     function reload() {

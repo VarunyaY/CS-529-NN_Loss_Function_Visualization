@@ -8,12 +8,23 @@ body {
 
 #buttonMenu {
   display: flex;
-  margin-left: 30%;
+  margin-left :30%;
+}
+
+#instructions{
+  padding-top: 15px;
+  margin-left: 20%; 
+}
+
+#sliderContainer{
+  display: flex;
+  margin-left: 50%;
 }
 
 .modelMenu {
   display: flex;
   margin-bottom: 3px;
+  float: right;
 }
 
 #projectTitle {
@@ -32,17 +43,6 @@ body {
   float: left;
 }
 
-#info{
-  background-color: rgb(83, 122, 20);
-  border: 1px solid #ffffff;
-  border-radius: 20px;
-  color: white;
-  padding: 10px 24px;
-  cursor: pointer;
-  outline: none;
-  float: left;
-}
-
 .modelMenu button:hover {
   background-color: rgb(49, 116, 192);
   outline: none;
@@ -50,6 +50,39 @@ body {
 
 #options {
   margin: 5px;
+}
+
+.how {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  margin-left: 10%;
+  user-select:none;
+  margin-top:10px;
+}
+
+.how .info {
+  visibility: hidden;
+  width:300px;
+  background-color: rgba(85, 85, 85, 0.76);
+  color: rgb(238, 255, 0);
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-bottom: -230px;
+  margin-left: -150px;
+}
+
+.how .show {
+  visibility: visible;
+}
+
+u{
+  color:rgb(0, 0, 0);
 }
 
 #reset {
@@ -98,12 +131,12 @@ label {
 }
 
 .legend {
-  width: 35px;
+  width: 70px;
 }
 
 #lossLegendSVG {
   margin-left: 10px;
-  height: 400px;
+  height: 350px;
 }
 
 #lossLegendBar {
@@ -115,14 +148,13 @@ label {
 
 #myRange{
   -webkit-appearance: none;
-  width: 600px;
+  width: 500px;
   height: 15px;
   border-radius: 5px;
   background: #d3d3d3;
   outline: none;
+  margin-left: 10px;
   opacity: 0.7;
-  margin-left: 750px;
-  margin-right: 100px;
 }
 
 .slider::-webkit-slider-thumb {
@@ -143,11 +175,14 @@ label {
   cursor: pointer;
 }
 
+#pointer{
+  margin-left: 5px;
+}
+
 #tooltip {
-  /*display:block;*/
-  position: relative;
-  width: 180px;
+  width: 300px;
+  margin-left: 5px;
   height: 30px;
   background: #FFFFFF;
   z-index: 2;
-  }
+}
