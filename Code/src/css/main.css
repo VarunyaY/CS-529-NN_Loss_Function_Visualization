@@ -6,22 +6,23 @@ body {
   margin: 10px;
 }
 
-#buttonMenu {
-  display: flex;
-  margin-left :30%;
-}
 
-#instructions{
+#instructions {
   padding-top: 15px;
-  margin-left: 20%; 
+  margin-left: 20%;
 }
 
-#sliderContainer{
+#sliderContainer {
   display: flex;
   margin-left: 50%;
 }
 
-.modelMenu {
+#modelMenu {
+  display: flex;
+  margin-left: 35%;
+}
+
+.buttonMenu {
   display: flex;
   margin-bottom: 3px;
   float: right;
@@ -29,21 +30,27 @@ body {
 
 #projectTitle {
   font-size: 30px;
-  margin-left: 25%;
+  color: #ffffff;
+  margin-left: 18%;
+}
+
+.blur {
+  filter: blur(20px);
 }
 
 .modelButton {
   background-color: rgb(27, 66, 110);
   border: 1px solid #ffffff;
-  border-radius: 20px;
+  border-radius: 10px;
+  height: 40px;
   color: white;
-  padding: 10px 24px;
+  padding: 5px 5px;
   cursor: pointer;
   outline: none;
   float: left;
 }
 
-.modelMenu button:hover {
+.modelButton:hover {
   background-color: rgb(49, 116, 192);
   outline: none;
 }
@@ -52,48 +59,35 @@ body {
   margin: 5px;
 }
 
-.how {
-  position: relative;
-  display: inline-block;
-  cursor: pointer;
-  margin-left: 10%;
-  user-select:none;
-  margin-top:10px;
-}
-
-.how .info {
-  visibility: hidden;
-  width:300px;
-  background-color: rgba(85, 85, 85, 0.76);
-  color: rgb(238, 255, 0);
-  text-align: center;
-  border-radius: 6px;
-  padding: 8px 0;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 50%;
-  margin-bottom: -230px;
-  margin-left: -150px;
-}
-
-.how .show {
-  visibility: visible;
-}
-
-u{
-  color:rgb(0, 0, 0);
-}
-
-#reset {
+.optionsButton {
   background-color: #0d5243;
   border: 1px solid #000;
   color: white;
-  padding: 10px 24px;
+  height: 30px;
+  padding: 5px 5px;
   cursor: pointer;
 }
 
-#reset:hover {
+#close {
+  background-color: #ff0000;
+  color: rgb(255, 255, 255);
+  height: 30px;
+  width: 30px;
+  margin-left: 97%;
+  padding: 5px 5px;
+  cursor: pointer;
+}
+
+
+#close:hover,
+#close:focus {
+  color: rgb(255, 0, 0);
+  background-color: #FFFFFF;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.optionsButton:hover {
   background-color: #1ba386;
 }
 
@@ -107,10 +101,6 @@ u{
   height: 400px;
 }
 
-#disclaimer {
-  margin-top: 25px;
-  margin-left: 10px;
-}
 
 #wireframe {
   margin-left: 50px;
@@ -146,16 +136,17 @@ label {
   margin-left: 10px;
 }
 
-#currentLoss{
+#currentLoss {
   margin-left: 10px;
   margin-right: 10px;
 }
 
-#lossInfo{
+#lossInfo {
   margin-right: 10px;
   margin-left: 10px;
 }
-#myRange{
+
+#myRange {
   -webkit-appearance: none;
   width: 400px;
   height: 15px;
@@ -186,7 +177,7 @@ label {
   cursor: pointer;
 }
 
-#pointer{
+#pointer {
   margin-left: 5px;
 }
 
@@ -196,4 +187,35 @@ label {
   height: 30px;
   background: #FFFFFF;
   z-index: 2;
+}
+
+.blur {
+  filter: blur(20px);
+}
+
+#modal {
+  display: block;
+  position: fixed;
+  z-index: 5;
+  left: 10%;
+  top: 10%;
+  width: 80%;
+  height: 80%;
+  border: 1px solid rgb(0, 0, 0);
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+#disclaimer {
+  padding: 20px;
+  color: #ffffff;
+  width: 80%;
+}
+
+.how {
+  position: relative;
+  display: inline-block;
+  padding: 20px;
+  color: #ffffff;
+  margin-top: 10px;
 }

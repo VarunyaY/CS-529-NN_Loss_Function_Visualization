@@ -12,6 +12,7 @@ window.addEventListener('DOMContentLoaded', () => {
     renderer.setSize(600, 400);
     document.getElementById('scene').appendChild(renderer.domElement);
 
+    //adding axes to scene
     var axesHelper = new THREE.AxesHelper(1000);
     axesHelper.translateY(-2);
     axesHelper.rotation.x = -Math.PI / 2;
@@ -36,24 +37,30 @@ window.addEventListener('DOMContentLoaded', () => {
     var xDirection = [];
     var yDirection = [];
 
-    d3.csv('assets/data/xDirection.csv', function (data) {
-        for (var k = 0; k < data.length; k++) {
-            xDirection.push(parseFloat(data[k]['X']))
+    d3.queue()
+        .defer(d3.csv, 'assets/data/xDirection.csv')
+        .defer(d3.csv, 'assets/data/yDirection.csv')
+        .await(loadXY)
+
+    function loadXY(error, xData, yData) {
+        for (var k = 0; k < xData.length; k++) {
+            xDirection.push(parseFloat(xData[k]['X']))
+            yDirection.push(parseFloat(yData[k]['Y']))
         }
-    })
+    }
 
-    yDirection = xDirection;
-
+    //adding event listeners to the 'model' buttons
     function addEvent(id, model) {
         d3.select(id)
             .on('click', function () {
                 if (loss_flag[model] === 0) {
                     scene.add(loss_mesh[model])
-
                     loss_flag[model] = 1;
 
+                    loadHeatMap(model)
                     d3.select(id)
                         .style('background-color', '#3174c0')
+
                 } else {
                     scene.remove(loss_mesh[model]);
                     loss_flag[model] = 0;
@@ -64,12 +71,21 @@ window.addEventListener('DOMContentLoaded', () => {
             })
     }
 
+    // load data of all the models
     function loadData(filename) {
         d3.json('assets/data/' + filename, function (data) {
 
             if (filename === 'resnet_train_loss.json') {
                 loss_mesh['resnet'] = create_mesh(data)
                 addEvent('#b_resnet_loss', 'resnet');
+
+                scene.add(loss_mesh['resnet']);
+                loadHeatMap('resnet')
+                loss_flag['resnet'] = 1;
+                d3.select('#b_resnet_loss')
+                    .style('background-color', '#3174c0')
+
+                drawCrossSection(0);
             }
 
             if (filename === 'densenet_train_loss.json') {
@@ -93,6 +109,10 @@ window.addEventListener('DOMContentLoaded', () => {
         loadData(file_names[i]);
     }
 
+    var maxLoss = {}
+    var minLoss = {}
+
+    //creating the 3D surface
     function create_mesh(data) {
         var X_keys = Object.keys(data)
         var Y_keys = Object.keys(data)
@@ -115,9 +135,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 values.push(zValue);
             }
         }
-
-        console.log(d3.max(values) * 0.05)
-        console.log(d3.min(values) * 0.05)
 
         var vertices_count = values.length;
 
@@ -172,19 +189,48 @@ window.addEventListener('DOMContentLoaded', () => {
         return mesh;
     }
 
-    var initialLoad = 0;
+    //tooltip for 2D crosssection
+    var tooltip2 = d3.select("body")
+        .append("div")
+        .style('position', 'absolute')
 
-    function drawCrossSection(loss, initialLoad) {
+    var tooltipOffset = {
+        x: 5,
+        y: -25
+    };
+
+    function moveTooltip() {
+        tooltip2.style("top", (d3.event.pageY + tooltipOffset.y) + "px")
+            .style("left", (d3.event.pageX + tooltipOffset.x) + "px");
+    }
+
+    function showTooltip(model, xDirection, yDirection) {
+        moveTooltip();
+        tooltip2.style("display", "block")
+            .style('border', 'solid 1px black')
+            .style('background', 'lightgray')
+            .style('padding', '2px')
+            .html('Model:' + model + '</br>' + 'X Direction: ' + xDirection + '</br>' +
+                'Y Direction: ' + yDirection)
+    }
+
+    function hideTooltip() {
+        tooltip2.style("display", "none");
+    }
+
+    //cross section of the 3D surface
+    function drawCrossSection(loss) {
         d3.select('#crossSection').select('svg').remove();
 
         var margin = {
-                top: 10,
-                right: 30,
-                bottom: 30,
-                left: 60
-            },
-            width = 600 - margin.left - margin.right,
-            height = 400 - margin.top - margin.bottom;
+            top: 10,
+            right: 30,
+            bottom: 30,
+            left: 60
+        }
+
+        var width = 600 - margin.left - margin.right;
+        var height = 400 - margin.top - margin.bottom;
 
         var svg = d3.select("#crossSection")
             .append("svg")
@@ -192,7 +238,6 @@ window.addEventListener('DOMContentLoaded', () => {
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
 
         var xScale = d3.scaleLinear()
             .domain([-1, 1])
@@ -209,10 +254,6 @@ window.addEventListener('DOMContentLoaded', () => {
         svg.append("g")
             .call(d3.axisLeft(yScale));
 
-        if (initialLoad === true) {
-            return
-        }
-
         var filteredData = {};
 
         for (model in loss_mesh) {
@@ -223,31 +264,13 @@ window.addEventListener('DOMContentLoaded', () => {
                         var filteredX = element.x;
                         var filteredY = element.y;
                         var filteredZ = element.z;
+                        var modelName = model;
 
                         points.push({
                             filteredX,
                             filteredY,
-                            filteredZ
-                        })
-                    }
-                });
-                filteredData[model] = points;
-            }
-        }
-
-        for (model in loss_mesh) {
-            if (loss_flag[model] === 1) {
-                var points = [];
-                loss_mesh[model].geometry.vertices.forEach(element => {
-                    if ((parseFloat(loss) - 0.01) <= element.z && (parseFloat(loss) + 0.01) >= element.z) {
-                        var filteredX = element.x;
-                        var filteredY = element.y;
-                        var filteredZ = element.z;
-
-                        points.push({
-                            filteredX,
-                            filteredY,
-                            filteredZ
+                            filteredZ,
+                            modelName
                         })
                     }
                 });
@@ -260,7 +283,6 @@ window.addEventListener('DOMContentLoaded', () => {
             .range(['red', 'blue', 'yellow', 'brown'])
 
         for (model in filteredData) {
-
             svg.append('g')
                 .selectAll("circle")
                 .data(filteredData[model])
@@ -276,22 +298,147 @@ window.addEventListener('DOMContentLoaded', () => {
                 .style("fill", function (d) {
                     return colors(model)
                 })
+                .on("mouseover", function (d) {
+                    showTooltip(d.modelName, d.filteredX, d.filteredY)
+                })
+                .on("mousemove", moveTooltip)
+                .on("mouseout", hideTooltip)
         }
     }
 
-    var slider = document.getElementById("myRange");
-    drawCrossSection(0,true)
-    slider.oninput = function () {
-        drawCrossSection(this.value, false);
-        d3.select('#currentLoss').html(this.value)
+    //heatmap
+    function loadHeatMap(modelName) {
+        d3.select('#heatMap').select('svg').remove();
+        var margin = {
+            top: 30,
+            right: 30,
+            bottom: 30,
+            left: 30
+        };
+
+        var width = 450 - margin.left - margin.right;
+        var height = 450 - margin.top - margin.bottom;
+
+        var svg = d3.select("#heatMap")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        var xScale = d3.scaleBand()
+            .range([0, width])
+            .domain(xDirection)
+            .padding(0.01);
+
+        svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(xScale));
+
+        var yScale = d3.scaleBand()
+            .range([height, 0])
+            .domain(xDirection)
+            .padding(0.01);
+
+        svg.append("g")
+            .call(d3.axisLeft(yScale));
+
+        var color = d3.scaleLinear()
+            .range(["#225ea8", "#41b6c4",
+                "#a1dab4", "#ffffcc", "#fee5d9", "#fcae91", "#fb6a4a", "#de2d26", "#a50f15"
+            ])
+            .domain([0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2])
+
+        var filteredDataForHeatMap = [];
+
+        loss_mesh[modelName].geometry.vertices.forEach(element => {
+            var X = element.x;
+            var Y = element.y;
+            var loss = element.z;
+
+            filteredDataForHeatMap.push({
+                X,
+                Y,
+                loss
+            })
+        });
+
+
+        svg.selectAll()
+            .data(filteredDataForHeatMap)
+            .enter()
+            .append("rect")
+            .attr("x", function (d) {
+                return xScale(d.X)
+            })
+            .attr("y", function (d) {
+                return yScale(d.Y)
+            })
+            .attr("width", xScale.bandwidth())
+            .attr("height", yScale.bandwidth())
+            .style("fill", function (d) {
+                return color(d.loss)
+            })
+    }
+    //heatmap
+
+
+    //adding plane to the scene
+    var planeGeo = new THREE.PlaneGeometry(3, 3);
+
+    var planeMaterial = new THREE.MeshBasicMaterial({
+        color: 'gray',
+        opacity: 0.2,
+        wireframe: false,
+        side: THREE.DoubleSide
+    });
+
+    var lossPlane = new THREE.Mesh(planeGeo, planeMaterial);
+    lossPlane.translateY(-2);
+    lossPlane.rotation.x = -Math.PI / 2;
+    scene.add(lossPlane);
+
+    function movePlane(offset) {
+        lossPlane.translateZ(offset);
     }
 
-    d3.select('.how')
-        .on('click', function () {
-            var popup = document.getElementById('popup');
-            popup.classList.toggle('show')
-        })
+    var slider = document.getElementById("myRange");
+    drawCrossSection(0);
 
+    var prevPos = 0;
+
+    slider.oninput = function () {
+        drawCrossSection(this.value);
+        d3.select('#currentLoss').html(this.value)
+
+        movePlane(this.value - prevPos);
+        prevPos = this.value;
+    }
+
+    //Title, disclaimer and how to use
+    var modal = document.getElementById("modal");
+
+    var infoButton = document.getElementById("infoButton");
+    var close = document.getElementById("close");
+
+    infoButton.onclick = function () {
+        modal.style.display = "block";
+        $('#background').addClass('blur')
+    }
+
+    close.onclick = function () {
+        modal.style.display = "none";
+        $('#background').removeClass('blur')
+    }
+
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+            $('#background').removeClass('blur')
+        }
+    }
+
+    //color legend
     var color_scale_loss = d3.scaleLinear()
         .domain([0, 50, 100])
         .range(['blue', 'skyblue', 'red'])
@@ -323,6 +470,7 @@ window.addEventListener('DOMContentLoaded', () => {
         .append("rect")
         .attr('id', 'lossLegendBar')
 
+    //wireframe option
     var wireframe_flag = 0;
 
     d3.select('#b_wireframe')
@@ -352,6 +500,7 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         })
 
+    //auto rotate option
     var auto_rotate_flag = 0;
     d3.select('#b_auto_rotate')
         .on('change', function () {
@@ -370,6 +519,7 @@ window.addEventListener('DOMContentLoaded', () => {
             camera.position.set(5, 0, 5);
         })
 
+    //tooltip for the 3D surface
     function onMouseMove(event) {
 
         var bounds = event.target.getBoundingClientRect();

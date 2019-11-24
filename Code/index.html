@@ -19,13 +19,12 @@
 </head>
 
 <body>
-  <div id='projectTitle'> Visualization of Loss Landscapes in Neural Networks </div>
 
-  <div id='buttonMenu'>
-    <div class='text'> <b> Model </b> </div>
+  <div id='background' class='blur'>
+    <div id='modelMenu'>
+      <div class='text'> <b> Model </b> </div>
 
-    <div>
-      <div class='modelMenu'>
+      <div class='buttonMenu'>
         <button id='b_densenet_loss' class='modelButton'> Densenet </button>
         <button id='b_resnet_ns_loss' class='modelButton'> Resnet No Short </button>
         <button id='b_resnet_loss' class='modelButton'> Resnet </button>
@@ -33,77 +32,93 @@
       </div>
     </div>
 
-    <div class='how'> <u>How to use? </u>
-      <span id='popup' class='info'>
-        <ul>
-          <li>Use mouse to rotate the axes.</li>
-          <li>Use arrow keys to move the origin. </li>
-          <li>WireFrame and auto rotate options can be enabled to get the wireframe representation
-            and rotate the scene.</li>
-          <li>Reset button resets the camera angle.</li>
-          <li> Use the slider to view the X, Y filter normalized directions for a particular loss value.</li>
-        </ul>
-      </span>
+    <div id='options'>
+      <button id='reset' class='optionsButton'> Reset Camera </button>
+
+      <label>WireFrame
+        <input type="checkbox" id='b_wireframe'>
+      </label>
+
+      <label> Auto Rotate
+        <input type="checkbox" id='b_auto_rotate'>
+      </label>
+
+      <button id="infoButton" class='optionsButton'> Show Info </button>
     </div>
+
+    <div id='mainContainer'>
+
+      <div id='scene'> </div>
+
+      <div class='legend'>
+        <div> Max Loss </div>
+        <svg id='lossLegendSVG'></svg>
+        <div>Min Loss</div>
+      </div>
+
+      <div id='crossSection'> </div>
+    </div>
+
+    <div id='tooltip'> </div>
+
+    <div>
+      <div id='sliderContainer'>
+        <div> current loss =
+          <span id=currentLoss> 0.001 </span> </div>
+        <input type="range" min="0.001" max="2.000" value="0" step='0.001' class="slider" id="myRange">
+
+        <div id='lossInfo'>(0.001 to 2)</div>
+      </div>
+    </div>
+
+    <div id='heatMap'> </div>
   </div>
 
-  <div id='options'>
-    <button id='reset' class='modelButton'> Reset Camera </button>
+  <div id="modal">
 
-    <label>WireFrame
-      <input type="checkbox" id='b_wireframe'>
-    </label>
+    <button id="close"> X </button>
 
-    <label> Auto Rotate
-      <input type="checkbox" id='b_auto_rotate'>
-    </label>
-  </div>
+    <div id='projectTitle'> Visualization of Loss Landscapes in Neural Networks </div>
 
-  <div id='mainContainer'>
-    <div id='scene'> </div>
-    <div class='legend'>
-      <div> Max Loss </div>
-      <svg id='lossLegendSVG'></svg>
-      <div>Min Loss</div>
+    <div id='disclaimer'>
+      <b>Disclaimer</b>
+      <ul>
+        <li>
+          The Visualization only focusses on four models, namely:
+          Resnet, Densenet, Renset no Short and VGG.
+        </li>
+        <li>
+          The Red, Green and Blue lines indicate the directions of positive X, Y and Z axes.
+        </li>
+        <li>
+          Select a model from the button menu to view its 3D loss surface.
+        </li>
+        <li>
+          Use the slider to view a cross-section of the 3D surfaces.</br>
+          (Red - Densenet, Blue - Resnet no Short, Yellow - Resnet, Brown - VGG)
+        </li>
+        <li>
+          The values of loss are scaled to 5% of their original value to allow easier comparison among different models.
+        </li>
+        <li>
+          Each model has different min and max values of loss (Blue to Red) and the color range applies to each model
+          separately.
+        </li>
+      </ul>
     </div>
-    <div id='crossSection'>
+
+    <div class='how'>
+      <b>How to use? </b> </br>
+      <ul>
+        <li>Use mouse to rotate the axes.</li>
+        <li> arrow keys to move the origin.</li>
+        <li>WireFrame and auto rotate options can be enabled to get
+          the wireframe representation and rotate the scene.</li>
+        <li>Reset button resets the camera angle. </li>
+        <li>Use the slider to view the X, Y filter normalized directions for a particular loss value.
+      </ul>
     </div>
-  </div>
 
-  <div id='tooltip'> </div>
-
-  <div>
-    <div id='sliderContainer'>
-      <div> current loss = 
-        <span id=currentLoss> 0.000 </span> </div> 
-      <input type="range" min="0" max="2" value="0" step='0.001' class="slider" id="myRange">
-      
-      <div id='lossInfo'>(0 to 2)</div>
-    </div>
-  </div>
-
-  <div id='disclaimer'>
-    <b>Disclaimer</b>
-    <ul>
-      <li>
-        The Visualization only focusses on four models, namely:
-        Resnet, Densenet, Renset no Short and VGG.
-      </li>
-      <li>
-        The Red, Green and Blue lines indicate the directions of positive X, Y and Z axes.
-      </li>
-      <li>
-        Please select a model to view and interact with slider to know the X, Y direction values.
-        </br> ( Red - Densenet, Blue - Resnet no Short, Resnet - yellow, VGG - Brown)
-      </li>
-      <li>
-        The values of loss are scaled to 5% of their original value to allow easier comparison among different models.
-      </li>
-      <li>
-        Each model has different min and max values of loss (Blue to Red) and the color range applies to each model
-        separately.
-      </li>
-    </ul>
   </div>
 </body>
 
