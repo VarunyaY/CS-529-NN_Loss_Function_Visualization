@@ -227,6 +227,17 @@ window.addEventListener('DOMContentLoaded', () => {
                 'Y Direction: ' + yDirection)
     }
 
+    function showHeatmapTooltip( xDirection, yDirection, loss) {
+        moveTooltip();
+        tooltip2.style("display", "block")
+            .style('border', 'solid 1px black')
+            .style('background', 'lightgray')
+            .style('padding', '2px')
+            .html('X Direction: ' + xDirection + '</br>' +
+                'Y Direction: ' + yDirection + '</br>' +
+                'Loss: ' + loss)
+    }
+
     function hideTooltip() {
         tooltip2.style("display", "none");
     }
@@ -352,8 +363,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
         svg.append("g")
             .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(xScale).tickValues(xScale.domain().filter(function(d,i){
-                return !(i%5)
+            .call(d3.axisBottom(xScale).tickValues(xScale.domain().filter(function (d, i) {
+                return !(i % 5)
             })));
 
         var yScale = d3.scaleBand()
@@ -361,11 +372,11 @@ window.addEventListener('DOMContentLoaded', () => {
             .domain(yDirection)
 
         svg.append("g")
-        .call(d3.axisLeft(yScale).tickValues(yScale.domain().filter(function(d,i){
-            return !(i%5)
-        })));
+            .call(d3.axisLeft(yScale).tickValues(yScale.domain().filter(function (d, i) {
+                return !(i % 5)
+            })));
 
-        var filteredDataForHeatMap = [];
+        var dataForHeatMap = [];
         var losses = [];
 
         loss_mesh[modelName].geometry.vertices.forEach(element => {
@@ -374,7 +385,7 @@ window.addEventListener('DOMContentLoaded', () => {
             var loss = element.z;
 
             losses.push(loss)
-            filteredDataForHeatMap.push({
+            dataForHeatMap.push({
                 X,
                 Y,
                 loss
@@ -386,7 +397,7 @@ window.addEventListener('DOMContentLoaded', () => {
             .domain([d3.min(losses), (d3.min(losses) + d3.max(losses)) / 2, d3.max(losses)])
 
         svg.selectAll()
-            .data(filteredDataForHeatMap)
+            .data(dataForHeatMap)
             .enter()
             .append("rect")
             .attr("x", function (d) {
@@ -401,7 +412,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 return color(d.loss)
             })
             .on("mouseover", function (d) {
-                showTooltip(modelName, d.X, d.Y)
+                showHeatmapTooltip(d.X, d.Y, d.loss)
             })
             .on("mousemove", moveTooltip)
             .on("mouseout", hideTooltip)
@@ -456,7 +467,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
         d3.select('#heatMapButton')
             .style('background-color', '#1ba386')
-            .attr('value', 'Heatmap(' + selected+ ')')
+            .attr('value', 'Heatmap(' + selected + ')')
 
         d3.select('#crossSectionButton')
             .style('background-color', '#0d5243')
