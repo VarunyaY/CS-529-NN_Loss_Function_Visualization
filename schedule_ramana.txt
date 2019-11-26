@@ -1,0 +1,7 @@
+Schedule for the first checkpoint:
+
+• Analyze the existing data, pre-process and change the format so that it can be used easily for visualization.
+• Bring in more data if needed by executing the algorithms in PyTorch (Python).
+• Write atleast one scenario in the functional specifications document.
+• Meet with the teammates to create prototypes (two) using FdS methodology.
+• Group discussion about the next set of deliverables.
