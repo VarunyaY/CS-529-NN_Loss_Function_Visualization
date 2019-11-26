@@ -119,7 +119,6 @@ body {
   cursor: pointer;
 }
 
-
 .tabButton:hover {
   background-color: #1ba386;
 }
@@ -144,8 +143,7 @@ body {
 }
 
 
-#close:hover,
-#close:focus {
+#close:hover, #close:focus {
   color: rgb(255, 0, 0);
   background-color: #FFFFFF;
   text-decoration: none;
@@ -239,14 +237,6 @@ label {
   appearance: none;
   width: 20px;
   height: 20px;
-  background: #4CAF50;
-  cursor: pointer;
-}
-
-.slider::-moz-range-thumb {
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
   background: #4CAF50;
   cursor: pointer;
 }

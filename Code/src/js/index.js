@@ -1,5 +1,6 @@
 window.addEventListener('DOMContentLoaded', () => {
 
+    // scene and camera
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.lookAt(0, 0, 0);
