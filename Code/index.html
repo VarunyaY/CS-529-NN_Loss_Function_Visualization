@@ -33,17 +33,33 @@
     </div>
 
     <div id='options'>
-      <button id='reset' class='optionsButton'> Reset Camera </button>
+      <div class='normal'>
+        <button id='reset' class='optionsButton'> Reset Camera </button>
 
-      <label>WireFrame
-        <input type="checkbox" id='b_wireframe'>
-      </label>
+        <label>WireFrame
+          <input type="checkbox" id='b_wireframe'>
+        </label>
 
-      <label> Auto Rotate
-        <input type="checkbox" id='b_auto_rotate'>
-      </label>
+        <label> Auto Rotate
+          <input type="checkbox" id='b_auto_rotate'>
+        </label>
 
-      <button id="infoButton" class='optionsButton'> Show Info </button>
+        <button id="infoButton" class='optionsButton'> Show Info </button>
+      </div>
+      <div class='tab'>
+        <button id="crossSectionButton" class="tabButton"> Cross Section </button>
+
+        <div id='heatMapDiv'>
+          <input id="heatMapButton" class="tabButton" type="button" value="Heatmap" />
+
+          <div class="dropdown-content">
+            <li id='densenetDropdown'>Densenet</li>
+            <li id='resnetNoShortDropdown'>Resnet No Short</li>
+            <li id='resnetDropdown'>Resnet</li>
+            <li id='vggDropdown'>VGG</li>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id='mainContainer'>
@@ -53,25 +69,38 @@
       <div class='legend'>
         <div> Max Loss </div>
         <svg id='lossLegendSVG'></svg>
-        <div>Min Loss</div>
+        <div> Min Loss</div>
       </div>
 
-      <div id='crossSection'> </div>
-    </div>
+      <div id='crossSectionContainer' class="tabcontent">
+        <div id='crossSection'> </div>
 
-    <div id='tooltip'> </div>
+        <div>
+          <div id='sliderContainer'>
+            <div id='lossInfo'>
+              <p>Loss:</p>
+              <span id=currentLoss> 0.001 </span>
+            </div>
+            <input type="range" min="0.001" max="2.000" value="0" step='0.001' class="slider" id="myRange">
 
-    <div>
-      <div id='sliderContainer'>
-        <div> current loss =
-          <span id=currentLoss> 0.001 </span> </div>
-        <input type="range" min="0.001" max="2.000" value="0" step='0.001' class="slider" id="myRange">
+            <div id='lossRange'>(0.001 to 2)</div>
+          </div>
+        </div>
+      </div>
 
-        <div id='lossInfo'>(0.001 to 2)</div>
+      <div id='heatmap'>
+        <div id='heatmap_densenet' class="tabcontent"> </div>
+        <div id='heatmap_resnet' class="tabcontent"> </div>
+        <div id='heatmap_resnet_no_short' class="tabcontent"> </div>
+        <div id='heatmap_vgg' class="tabcontent"> </div>
       </div>
     </div>
 
-    <div id='heatMap'> </div>
+    <div id='current'>
+      Current position:
+      <span id='tooltip'> </span>
+    </div>
+
   </div>
 
   <div id="modal">
@@ -84,25 +113,22 @@
       <b>Disclaimer</b>
       <ul>
         <li>
-          The Visualization only focusses on four models, namely:
+          The Visualization focusses on four models:</br>
           Resnet, Densenet, Renset no Short and VGG.
         </li>
-        <li>
-          The Red, Green and Blue lines indicate the directions of positive X, Y and Z axes.
+        <li>The values of loss are scaled to 5% of their original value
+          to allow easier comparison among differentmodels.
         </li>
         <li>
-          Select a model from the button menu to view its 3D loss surface.
+          In the 3D loss surface visualization, the Red, Green and Blue lines indicate
+          the directions of positive X, Y and Z axes.
+        </br>
+          X: X - filter normalized direction, Y: Y - filter normalized direction and Z: Loss. 
         </li>
+        <li> In the cross section and heatmap the X and Y axes indicate the
+          X, Y filter normalized directions respectively.</li>
         <li>
-          Use the slider to view a cross-section of the 3D surfaces.</br>
-          (Red - Densenet, Blue - Resnet no Short, Yellow - Resnet, Brown - VGG)
-        </li>
-        <li>
-          The values of loss are scaled to 5% of their original value to allow easier comparison among different models.
-        </li>
-        <li>
-          Each model has different min and max values of loss (Blue to Red) and the color range applies to each model
-          separately.
+          For each model blue indicates the lowest loss value and red indicates the highest loss.
         </li>
       </ul>
     </div>
@@ -110,12 +136,28 @@
     <div class='how'>
       <b>How to use? </b> </br>
       <ul>
-        <li>Use mouse to rotate the axes.</li>
-        <li> arrow keys to move the origin.</li>
+        <li>
+          Select a model from the button menu to view its 3D loss surface.
+        </li>
+
+        <li> The Cross Section and HeatMap buttons can be used to view the encoding of interest</li>
+
+        <li> Use the slider to view the X, Y filter normalized directions for a particular loss value.
+          </br>
+          (Red - Densenet, Blue - Resnet no Short, Orange - Resnet, Brown - VGG)
+        </li>
+
+        <li> Select a model from the dropdown list to view its heatmap. </li>
+
+        <li> Hovering on the 3D surface, cross section and Heatmap gives information
+          about the X, Y filter normalized directions and the corresponding loss values.
+        </li>
+
+        <li>Use mouse to zoom and rotate the axes.</li>
+        <li>Use arrow keys to move the origin.</li>
         <li>WireFrame and auto rotate options can be enabled to get
-          the wireframe representation and rotate the scene.</li>
+          the wireframe representation and to auto rotate the scene.</li>
         <li>Reset button resets the camera angle. </li>
-        <li>Use the slider to view the X, Y filter normalized directions for a particular loss value.
       </ul>
     </div>
 

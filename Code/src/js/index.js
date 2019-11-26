@@ -8,11 +8,11 @@ window.addEventListener('DOMContentLoaded', () => {
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.update()
 
-    camera.position.set(4, 0, 4);
+    camera.position.set(3, 0, 3);
     renderer.setSize(600, 400);
     document.getElementById('scene').appendChild(renderer.domElement);
 
-    //adding axes to scene
+    // Adding axes to scene
     var axesHelper = new THREE.AxesHelper(1000);
     axesHelper.translateY(-2);
     axesHelper.rotation.x = -Math.PI / 2;
@@ -37,6 +37,7 @@ window.addEventListener('DOMContentLoaded', () => {
     var xDirection = [];
     var yDirection = [];
 
+    // Load X-Direction and Y-Direction files
     d3.queue()
         .defer(d3.csv, 'assets/data/xDirection.csv')
         .defer(d3.csv, 'assets/data/yDirection.csv')
@@ -49,7 +50,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    //adding event listeners to the 'model' buttons
+    // Adding event listeners to the 'model' buttons
     function addEvent(id, model) {
         d3.select(id)
             .on('click', function () {
@@ -57,7 +58,6 @@ window.addEventListener('DOMContentLoaded', () => {
                     scene.add(loss_mesh[model])
                     loss_flag[model] = 1;
 
-                    loadHeatMap(model)
                     d3.select(id)
                         .style('background-color', '#3174c0')
 
@@ -71,7 +71,7 @@ window.addEventListener('DOMContentLoaded', () => {
             })
     }
 
-    // load data of all the models
+    // Load data of a model
     function loadData(filename) {
         d3.json('assets/data/' + filename, function (data) {
 
@@ -79,28 +79,42 @@ window.addEventListener('DOMContentLoaded', () => {
                 loss_mesh['resnet'] = create_mesh(data)
                 addEvent('#b_resnet_loss', 'resnet');
 
-                scene.add(loss_mesh['resnet']);
                 loadHeatMap('resnet')
+
+                // Enable resnet by default
+                scene.add(loss_mesh['resnet']);
+
                 loss_flag['resnet'] = 1;
                 d3.select('#b_resnet_loss')
                     .style('background-color', '#3174c0')
 
-                drawCrossSection(0);
+
+                d3.select('#crossSectionButton')
+                    .style('background-color', '#1ba386')
+
+                drawCrossSection(0)
             }
 
             if (filename === 'densenet_train_loss.json') {
                 loss_mesh['densenet'] = create_mesh(data)
                 addEvent('#b_densenet_loss', 'densenet');
+
+                loadHeatMap('densenet')
             }
 
             if (filename === 'vgg_train_loss.json') {
                 loss_mesh['vgg'] = create_mesh(data)
                 addEvent('#b_vgg_loss', 'vgg');
+
+
+                loadHeatMap('vgg')
             }
 
             if (filename === 'resnet_ns_train_loss.json') {
                 loss_mesh['resnet_no_short'] = create_mesh(data)
                 addEvent('#b_resnet_ns_loss', 'resnet_no_short');
+
+                loadHeatMap('resnet_no_short')
             }
         })
     }
@@ -109,10 +123,7 @@ window.addEventListener('DOMContentLoaded', () => {
         loadData(file_names[i]);
     }
 
-    var maxLoss = {}
-    var minLoss = {}
-
-    //creating the 3D surface
+    // Creating the 3D surface
     function create_mesh(data) {
         var X_keys = Object.keys(data)
         var Y_keys = Object.keys(data)
@@ -142,7 +153,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
         var color = d3.scaleLinear()
             .domain([d3.min(values), (d3.min(values) + d3.max(values) / 2), d3.max(values)])
-            .range(['blue', 'white', 'red'])
+            .range(['blue', 'skyblue', 'red'])
 
         for (var k = 0; k < vertices_count; ++k) {
             var newvert = new THREE.Vector3((xgrid[k]), (ygrid[k]), (values[k]) * scalefacz);
@@ -189,7 +200,7 @@ window.addEventListener('DOMContentLoaded', () => {
         return mesh;
     }
 
-    //tooltip for 2D crosssection
+    // Tooltip for 2D crosssection and heatmap
     var tooltip2 = d3.select("body")
         .append("div")
         .style('position', 'absolute')
@@ -218,7 +229,7 @@ window.addEventListener('DOMContentLoaded', () => {
         tooltip2.style("display", "none");
     }
 
-    //cross section of the 3D surface
+    // Cross section of the 3D surface
     function drawCrossSection(loss) {
         d3.select('#crossSection').select('svg').remove();
 
@@ -247,9 +258,17 @@ window.addEventListener('DOMContentLoaded', () => {
             .attr("transform", "translate(0," + height + ")")
             .call(d3.axisBottom(xScale));
 
+        svg.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('transform', 'translate(' + width / 2 + ',' + height + ')')
+
         var yScale = d3.scaleLinear()
             .domain([-1, 1])
             .range([height, 0]);
+
+        svg.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('transform', 'translate(0,' + height / 2 + ')rotate(-90)')
 
         svg.append("g")
             .call(d3.axisLeft(yScale));
@@ -280,7 +299,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
         var colors = d3.scaleOrdinal()
             .domain(['densenet', 'resnet_no_short', 'resnet', 'vgg'])
-            .range(['red', 'blue', 'yellow', 'brown'])
+            .range(['red', 'blue', 'orange', 'brown'])
 
         for (model in filteredData) {
             svg.append('g')
@@ -306,9 +325,8 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    //heatmap
+    // Build the heatmap
     function loadHeatMap(modelName) {
-        d3.select('#heatMap').select('svg').remove();
         var margin = {
             top: 30,
             right: 30,
@@ -319,43 +337,41 @@ window.addEventListener('DOMContentLoaded', () => {
         var width = 450 - margin.left - margin.right;
         var height = 450 - margin.top - margin.bottom;
 
-        var svg = d3.select("#heatMap")
+        var svg = d3.select('#heatmap_' + modelName)
             .append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
         var xScale = d3.scaleBand()
             .range([0, width])
             .domain(xDirection)
-            .padding(0.01);
 
         svg.append("g")
             .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(xScale));
+            .call(d3.axisBottom(xScale).tickValues(xScale.domain().filter(function(d,i){
+                return !(i%5)
+            })));
 
         var yScale = d3.scaleBand()
             .range([height, 0])
-            .domain(xDirection)
-            .padding(0.01);
+            .domain(yDirection)
 
         svg.append("g")
-            .call(d3.axisLeft(yScale));
-
-        var color = d3.scaleLinear()
-            .range(["#225ea8", "#41b6c4",
-                "#a1dab4", "#ffffcc", "#fee5d9", "#fcae91", "#fb6a4a", "#de2d26", "#a50f15"
-            ])
-            .domain([0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2])
+        .call(d3.axisLeft(yScale).tickValues(yScale.domain().filter(function(d,i){
+            return !(i%5)
+        })));
 
         var filteredDataForHeatMap = [];
+        var losses = [];
 
         loss_mesh[modelName].geometry.vertices.forEach(element => {
             var X = element.x;
             var Y = element.y;
             var loss = element.z;
 
+            losses.push(loss)
             filteredDataForHeatMap.push({
                 X,
                 Y,
@@ -363,6 +379,9 @@ window.addEventListener('DOMContentLoaded', () => {
             })
         });
 
+        var color = d3.scaleLinear()
+            .range(['blue', 'skyblue', 'red'])
+            .domain([d3.min(losses), (d3.min(losses) + d3.max(losses)) / 2, d3.max(losses)])
 
         svg.selectAll()
             .data(filteredDataForHeatMap)
@@ -379,43 +398,105 @@ window.addEventListener('DOMContentLoaded', () => {
             .style("fill", function (d) {
                 return color(d.loss)
             })
-    }
-    //heatmap
-
-
-    //adding plane to the scene
-    var planeGeo = new THREE.PlaneGeometry(3, 3);
-
-    var planeMaterial = new THREE.MeshBasicMaterial({
-        color: 'gray',
-        opacity: 0.2,
-        wireframe: false,
-        side: THREE.DoubleSide
-    });
-
-    var lossPlane = new THREE.Mesh(planeGeo, planeMaterial);
-    lossPlane.translateY(-2);
-    lossPlane.rotation.x = -Math.PI / 2;
-    scene.add(lossPlane);
-
-    function movePlane(offset) {
-        lossPlane.translateZ(offset);
+            .on("mouseover", function (d) {
+                showTooltip(modelName, d.X, d.Y)
+            })
+            .on("mousemove", moveTooltip)
+            .on("mouseout", hideTooltip)
     }
 
+    // Toggle between crosssection and heatmap
+    function toggleHeatMap() {
+        d3.select('#crossSectionContainer')
+            .style('display', 'none')
+
+        d3.select('#heatmap')
+            .style('display', 'flex')
+
+        d3.select('#heatmap_densenet')
+            .style('display', 'none')
+        d3.select('#heatmap_resnet')
+            .style('display', 'none')
+        d3.select('#heatmap_resnet_no_short')
+            .style('display', 'none')
+        d3.select('#heatmap_vgg')
+            .style('display', 'none')
+
+        var selected;
+
+        if (event.target.id === 'densenetDropdown') {
+            d3.select('#heatmap_densenet')
+                .style('display', 'block')
+
+            selected = 'Densenet'
+        }
+
+        if (event.target.id === 'resnetNoShortDropdown') {
+            d3.select('#heatmap_resnet_no_short')
+                .style('display', 'block')
+
+            selected = 'Resnet No Short'
+        }
+
+        if (event.target.id === 'resnetDropdown') {
+            d3.select('#heatmap_resnet')
+                .style('display', 'block')
+
+            selected = 'Resnet'
+        }
+
+        if (event.target.id === 'vggDropdown') {
+            d3.select('#heatmap_vgg')
+                .style('display', 'block')
+
+            selected = 'VGG'
+        }
+
+        d3.select('#heatMapButton')
+            .style('background-color', '#1ba386')
+            .attr('value', 'Heatmap(' + selected+ ')')
+
+        d3.select('#crossSectionButton')
+            .style('background-color', '#0d5243')
+    }
+
+    function toggleCrossSection() {
+        d3.select('#heatmap')
+            .style('display', 'none')
+
+        d3.select('#crossSectionContainer')
+            .style('display', 'block')
+
+        d3.select('#crossSectionButton')
+            .style('background-color', '#1ba386')
+
+        d3.select('#heatMapButton')
+            .style('background-color', '#0d5243')
+    }
+
+    d3.select('#crossSectionButton')
+        .on('click', toggleCrossSection)
+
+    d3.select('#densenetDropdown')
+        .on('click', toggleHeatMap)
+    d3.select('#resnetDropdown')
+        .on('click', toggleHeatMap)
+    d3.select('#resnetNoShortDropdown')
+        .on('click', toggleHeatMap)
+    d3.select('#vggDropdown')
+        .on('click', toggleHeatMap)
+
+    // Slider to interact with cross section
     var slider = document.getElementById("myRange");
-    drawCrossSection(0);
 
     var prevPos = 0;
 
     slider.oninput = function () {
         drawCrossSection(this.value);
         d3.select('#currentLoss').html(this.value)
-
-        movePlane(this.value - prevPos);
-        prevPos = this.value;
     }
 
-    //Title, disclaimer and how to use
+    // Title, disclaimer and how to use
     var modal = document.getElementById("modal");
 
     var infoButton = document.getElementById("infoButton");
@@ -438,7 +519,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    //color legend
+    // Color legend
     var color_scale_loss = d3.scaleLinear()
         .domain([0, 50, 100])
         .range(['blue', 'skyblue', 'red'])
@@ -470,7 +551,7 @@ window.addEventListener('DOMContentLoaded', () => {
         .append("rect")
         .attr('id', 'lossLegendBar')
 
-    //wireframe option
+    // Wireframe option
     var wireframe_flag = 0;
 
     d3.select('#b_wireframe')
@@ -500,7 +581,8 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         })
 
-    //auto rotate option
+
+    // Auto rotate option
     var auto_rotate_flag = 0;
     d3.select('#b_auto_rotate')
         .on('change', function () {
@@ -516,10 +598,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
     d3.select('#reset')
         .on('click', function () {
-            camera.position.set(5, 0, 5);
+            camera.position.set(3, 0, 3);
         })
 
-    //tooltip for the 3D surface
+    // Tooltip for the 3D surface
     function onMouseMove(event) {
 
         var bounds = event.target.getBoundingClientRect();

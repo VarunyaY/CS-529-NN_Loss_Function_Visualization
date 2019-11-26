@@ -1,5 +1,0 @@
-For the first checkpoint:
-1. Analyze the existing data and change the format useful for presentation.
-2. Bring in more data as the need be by executing the algorithms in PyTorch.
-3. Prepare the functional specification document.
-
