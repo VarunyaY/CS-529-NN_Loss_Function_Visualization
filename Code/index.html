@@ -22,7 +22,7 @@
 
   <div id='background' class='blur'>
     <div id='modelMenu'>
-      <div class='text'> <b> Model </b> </div>
+      <div class='text'> <b> Model Menu</b> </div>
 
       <div class='buttonMenu'>
         <button id='b_densenet_loss' class='modelButton'> Densenet </button>
@@ -46,6 +46,7 @@
 
         <button id="infoButton" class='optionsButton'> Show Info </button>
       </div>
+
       <div class='tab'>
         <button id="crossSectionButton" class="tabButton"> Cross Section </button>
 
@@ -64,8 +65,15 @@
 
     <div id='mainContainer'>
 
-      <div id='scene'> </div>
+      <div>
+        <div id='scene'> </div>
 
+        <div id='current'>
+          Current position:
+          <span id='tooltip'> </span>
+        </div>
+      </div>
+      
       <div class='legend'>
         <div> Max Loss </div>
         <svg id='lossLegendSVG'></svg>
@@ -86,6 +94,11 @@
             <div id='lossRange'>(0.001 to 2)</div>
           </div>
         </div>
+
+        <div id='modelLegend'>
+          <p id='modelInfo'> Color - Model </p>
+          <div id='colorIndex'>🔴 Densenet 🟠 Resnet 🔵 Resnet No Short 🟤 VGG</div>
+        </div>
       </div>
 
       <div id='heatmap'>
@@ -96,10 +109,6 @@
       </div>
     </div>
 
-    <div id='current'>
-      Current position:
-      <span id='tooltip'> </span>
-    </div>
 
   </div>
 

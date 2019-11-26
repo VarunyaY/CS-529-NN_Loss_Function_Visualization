@@ -69,6 +69,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     d3.select(id)
                         .style('background-color', '#1b426e')
                 }
+                //drawCrossSection(d3.select('#myRange').value)
             })
     }
 

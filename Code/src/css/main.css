@@ -16,7 +16,7 @@ body {
   width: 100%;
 }
 
-#current{
+#current {
   margin-left: 10px;
 }
 
@@ -41,9 +41,23 @@ body {
   filter: blur(20px);
 }
 
+
+#modelLegend {
+  border: 1px solid #000;
+}
+
+
+#modelInfo {
+  margin-left: 40%;
+}
+
+#colorIndex {
+  margin-left: 20%;
+}
+
 .modelButton {
   background-color: rgb(27, 66, 110);
-  border: 1px solid #000000;
+  border: 0.1px solid #000000;
   height: 40px;
   color: white;
   padding: 5px 5px;
@@ -132,6 +146,10 @@ body {
   cursor: pointer;
 }
 
+#heatmap {
+  margin-left: 90px;
+}
+
 #close {
   background-color: #ff0000;
   color: rgb(255, 255, 255);
@@ -143,7 +161,8 @@ body {
 }
 
 
-#close:hover, #close:focus {
+#close:hover,
+#close:focus {
   color: rgb(255, 0, 0);
   background-color: #FFFFFF;
   text-decoration: none;
@@ -190,6 +209,7 @@ label {
 
 .legend {
   width: 70px;
+  margin-left: 30px;
 }
 
 #lossLegendSVG {
@@ -205,6 +225,11 @@ label {
 
 #currentLoss {
   margin-right: 5px;
+  margin-left: 5px;
+}
+
+#current {
+  margin-top: 5px;
   margin-left: 5px;
 }
 
