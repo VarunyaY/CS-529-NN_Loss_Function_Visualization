@@ -25,9 +25,9 @@
       <div class='text'> <b> Model Menu</b> </div>
 
       <div class='buttonMenu'>
-        <button id='b_densenet_loss' class='modelButton'> Densenet </button>
-        <button id='b_resnet_ns_loss' class='modelButton'> Resnet No Short </button>
-        <button id='b_resnet_loss' class='modelButton'> Resnet </button>
+        <button id='b_resnet_loss' class='modelButton'> ResNet </button>
+        <button id='b_densenet_loss' class='modelButton'> DenseNet </button>
+        <button id='b_resnet_ns_loss' class='modelButton'> ResNet No Short </button>
         <button id='b_vgg_loss' class='modelButton'> VGG </button>
       </div>
     </div>
@@ -54,17 +54,16 @@
           <input id="heatMapButton" class="tabButton" type="button" value="Heatmap" />
 
           <div class="dropdown-content">
-            <li id='densenetDropdown'>Densenet</li>
-            <li id='resnetNoShortDropdown'>Resnet No Short</li>
-            <li id='resnetDropdown'>Resnet</li>
+            <li id='resnetDropdown'>ResNet</li>
+            <li id='densenetDropdown'>DenseNet</li>
             <li id='vggDropdown'>VGG</li>
+            <li id='resnetNoShortDropdown'>ResNet No Short</li>
           </div>
         </div>
       </div>
     </div>
 
     <div id='mainContainer'>
-
       <div>
         <div id='scene'> </div>
 
@@ -72,8 +71,32 @@
           Current position:
           <span id='tooltip'> </span>
         </div>
+
+        <div id='sceneHelper'>
+
+          <div id='axesInfo'>
+            <div class='axis'>
+              <hr id='xAxis'>
+              X (X-Direction)
+            </div>
+            <div class='axis'>
+              <hr id='yAxis'>
+              Y (Y-Direction)
+            </div>
+            <div class='axis'>
+              <hr id='zAxis'>
+              Z (Loss)
+            </div>
+          </div>
+
+          <div id='controlsInfo'>
+            Use mouse to zoom and rotate.
+            Use arrow keys to move the scene.
+          </div>
+        </div>
       </div>
-      
+
+
       <div class='legend'>
         <div> Max Loss </div>
         <svg id='lossLegendSVG'></svg>
@@ -81,7 +104,7 @@
       </div>
 
       <div id='crossSectionContainer' class="tabcontent">
-        
+
         <div id='crossSection'> </div>
 
         <div>
@@ -98,7 +121,12 @@
 
         <div id='modelLegend'>
           <p id='modelInfo'> Color - Model </p>
-          <div id='colorIndex'>🔴 Densenet 🟠 Resnet 🔵 Resnet No Short 🟤 VGG</div>
+          <div id='colorIndex'>
+            <span id="resnetDot"> </span> ResNet
+            <span id="densenetDot"> </span> DenseNet
+            <span id="resnetNoShortDot"> </span> ResNet No Short
+            <span id="vggDot"> </span> VGG
+          </div>
         </div>
       </div>
 
@@ -108,8 +136,8 @@
         <div id='heatmap_resnet_no_short' class="tabcontent"> </div>
         <div id='heatmap_vgg' class="tabcontent"> </div>
       </div>
-    </div>
 
+    </div>
 
   </div>
 
@@ -126,14 +154,8 @@
           The Visualization focusses on four models:</br>
           Resnet, Densenet, Renset no Short and VGG.
         </li>
-        <li>The values of loss are scaled to 5% of their original value
-          to allow easier comparison among differentmodels.
-        </li>
-        <li>
-          In the 3D loss surface visualization, the Red, Green and Blue lines indicate
-          the directions of positive X, Y and Z axes.
-          </br>
-          X: X - filter normalized direction, Y: Y - filter normalized direction and Z: Loss.
+        <li>The ratio of original loss values to the ones used for visualization
+          is 20:1 to ease model comparison.
         </li>
         <li> In the cross section and heatmap the X and Y axes indicate the
           X, Y filter normalized directions respectively.</li>
@@ -157,7 +179,7 @@
 
         <li> Select a model from the dropdown list to view its heatmap. </li>
 
-        <li> Hovering on the 3D surface, cross section and Heatmap gives information
+        <li> Hovering on the 3D surface, cross section or heatmap gives information
           about the X, Y filter normalized directions and the corresponding loss values.
         </li>
 

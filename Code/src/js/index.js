@@ -7,9 +7,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
     var renderer = new THREE.WebGLRenderer();
     controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.minPolarAngle = Math.PI / 2;
+    controls.maxPolarAngle = Math.PI / 2;
     controls.update()
 
-    camera.position.set(3, 0, 3);
+    camera.position.set(3, -2.15, -3);
     renderer.setSize(600, 400);
     document.getElementById('scene').appendChild(renderer.domElement);
 
@@ -60,14 +62,14 @@ window.addEventListener('DOMContentLoaded', () => {
                     loss_flag[model] = 1;
 
                     d3.select(id)
-                        .style('background-color', '#3174c0')
+                        .style('background-color', '#000080')
 
                 } else {
                     scene.remove(loss_mesh[model]);
                     loss_flag[model] = 0;
 
                     d3.select(id)
-                        .style('background-color', '#1b426e')
+                        .style('background-color', '#3174c0')
                 }
                 //drawCrossSection(d3.select('#myRange').value)
             })
@@ -88,11 +90,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
                 loss_flag['resnet'] = 1;
                 d3.select('#b_resnet_loss')
-                    .style('background-color', '#3174c0')
-
+                    .style('background-color', '#000080')
 
                 d3.select('#crossSectionButton')
-                    .style('background-color', '#1ba386')
+                    .style('background-color', '#238b45')
 
                 drawCrossSection(0)
             }
@@ -219,15 +220,28 @@ window.addEventListener('DOMContentLoaded', () => {
 
     function showTooltip(model, xDirection, yDirection) {
         moveTooltip();
+
+        var model_print;
+
+        if (model == 'resnet') {
+            model_print = 'ResNet';
+        } else if (model == 'densenet') {
+            model_print = 'DenseNet';
+        } else if (model == 'vgg') {
+            model_print = 'VGG';
+        } else {
+            model_print = "ResNet No Short";
+        }
+
         tooltip2.style("display", "block")
             .style('border', 'solid 1px black')
             .style('background', 'lightgray')
             .style('padding', '2px')
-            .html('Model:' + model + '</br>' + 'X Direction: ' + xDirection + '</br>' +
+            .html('Model:' + model_print + '</br>' + 'X Direction: ' + xDirection + '</br>' +
                 'Y Direction: ' + yDirection)
     }
 
-    function showHeatmapTooltip( xDirection, yDirection, loss) {
+    function showHeatmapTooltip(xDirection, yDirection, loss) {
         moveTooltip();
         tooltip2.style("display", "block")
             .style('border', 'solid 1px black')
@@ -292,7 +306,7 @@ window.addEventListener('DOMContentLoaded', () => {
             if (loss_flag[model] === 1) {
                 var points = [];
                 loss_mesh[model].geometry.vertices.forEach(element => {
-                    if ((parseFloat(loss) - 0.001) <= element.z && (parseFloat(loss) + 0.001) >= element.z) {
+                    if ((parseFloat(loss) - 0.01) <= element.z && (parseFloat(loss) + 0.01) >= element.z) {
                         var filteredX = element.x;
                         var filteredY = element.y;
                         var filteredZ = element.z;
@@ -311,8 +325,8 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         var colors = d3.scaleOrdinal()
-            .domain(['densenet', 'resnet_no_short', 'resnet', 'vgg'])
-            .range(['red', 'blue', 'orange', 'brown'])
+            .domain(['resnet', 'densenet', 'resnet_no_short', 'vgg'])
+            .range(['#9e9ac8', '#a1d76a', '#f03b20', '#ffe200'])
 
         for (model in filteredData) {
             svg.append('g')
@@ -326,7 +340,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 .attr("cy", function (d) {
                     return yScale(d.filteredY);
                 })
-                .attr("r", 3)
+                .attr("r", 4)
                 .style("fill", function (d) {
                     return colors(model)
                 })
@@ -466,11 +480,11 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         d3.select('#heatMapButton')
-            .style('background-color', '#1ba386')
-            .attr('value', 'Heatmap(' + selected + ')')
+            .style('background-color', '#238b45')
+            .attr('value', 'Heatmap (' + selected + ')')
 
         d3.select('#crossSectionButton')
-            .style('background-color', '#0d5243')
+            .style('background-color', '#74c476')
     }
 
     function toggleCrossSection() {
@@ -481,10 +495,10 @@ window.addEventListener('DOMContentLoaded', () => {
             .style('display', 'block')
 
         d3.select('#crossSectionButton')
-            .style('background-color', '#1ba386')
+            .style('background-color', '#238b45')
 
         d3.select('#heatMapButton')
-            .style('background-color', '#0d5243')
+            .style('background-color', '#74c476')
     }
 
     d3.select('#crossSectionButton')
@@ -499,14 +513,35 @@ window.addEventListener('DOMContentLoaded', () => {
     d3.select('#vggDropdown')
         .on('click', toggleHeatMap)
 
+    //adding the plane
+    var planeGeo = new THREE.PlaneGeometry(2.5, 2.5);
+    var planeMaterial = new THREE.MeshBasicMaterial({
+        color: 'orange',
+        opacity: 0.4,
+        wireframe: true,
+        side: THREE.DoubleSide
+    });
+
+    var lossPlane = new THREE.Mesh(planeGeo, planeMaterial);
+    lossPlane.translateY(-2);
+    lossPlane.rotation.x = -Math.PI / 2;
+
+    scene.add(lossPlane);
+
+    function movePlane(offset) {
+        lossPlane.translateZ(offset);
+    }
+
     // Slider to interact with cross section
     var slider = document.getElementById("myRange");
-
     var prevPos = 0;
 
     slider.oninput = function () {
         drawCrossSection(this.value);
         d3.select('#currentLoss').html(this.value)
+        movePlane(this.value - prevPos);
+
+        prevPos = this.value;
     }
 
     // Title, disclaimer and how to use
@@ -564,6 +599,8 @@ window.addEventListener('DOMContentLoaded', () => {
         .append("rect")
         .attr('id', 'lossLegendBar')
 
+
+
     // Wireframe option
     var wireframe_flag = 0;
 
@@ -611,7 +648,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     d3.select('#reset')
         .on('click', function () {
-            camera.position.set(3, 0, 3);
+            camera.position.set(3, -2.15, -3);
         })
 
     // Tooltip for the 3D surface
